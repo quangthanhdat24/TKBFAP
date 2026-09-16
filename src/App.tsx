@@ -164,10 +164,7 @@ export default function App() {
           </div>
 
           <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-white">
-            Đồng bộ Lịch FAP <br />
-            <span className="bg-clip-text text-transparent bg-gradient-to-r from-orange-400 via-amber-400 to-orange-500">
-              Vào Lịch Điện Thoại iOS & Android
-            </span>
+            Đồng bộ Lịch FAP
           </h1>
 
           <p className="text-xs sm:text-sm text-slate-400 mt-2 leading-relaxed">
