@@ -31,10 +31,13 @@ export default function App() {
   const [userId, setUserId] = useState<string>('demo');
   const [scheduleData, setScheduleData] = useState<UserScheduleData | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [activeTab, setActiveTab] = useState<'sync' | 'timetable' | 'simulator' | 'deploy'>('sync');
+  const [activeTab, setActiveTab] = useState<'sync' | 'timetable' | 'auto1touch' | 'simulator' | 'deploy'>('sync');
   const [activeGuideTab, setActiveGuideTab] = useState<'ios' | 'android'>('ios');
   const [copiedBookmarklet, setCopiedBookmarklet] = useState<boolean>(false);
   const [copiedFeedUrl, setCopiedFeedUrl] = useState<boolean>(false);
+  const [copiedUserscript, setCopiedUserscript] = useState<boolean>(false);
+  const [copiedShortcutJs, setCopiedShortcutJs] = useState<boolean>(false);
+  const [pastedHtml, setPastedHtml] = useState<string>('');
   const [syncStatusMsg, setSyncStatusMsg] = useState<string>('');
   const [selectedDateFilter, setSelectedDateFilter] = useState<string>('all');
 
@@ -217,11 +220,11 @@ export default function App() {
         </header>
 
         {/* Navigation Tabs */}
-        <nav id="nav-tabs" className="grid grid-cols-4 gap-1 p-1 bg-slate-900/90 border border-slate-800 rounded-xl">
+        <nav id="nav-tabs" className="grid grid-cols-5 gap-1 p-1 bg-slate-900/90 border border-slate-800 rounded-xl">
           <button
             id="tab-btn-sync"
             onClick={() => setActiveTab('sync')}
-            className={`py-2 px-1 text-xs font-bold rounded-lg transition text-center ${
+            className={`py-2 px-1 text-[11px] font-bold rounded-lg transition text-center ${
               activeTab === 'sync'
                 ? 'bg-orange-500 text-white shadow-md shadow-orange-500/20'
                 : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/50'
@@ -232,34 +235,45 @@ export default function App() {
           <button
             id="tab-btn-timetable"
             onClick={() => setActiveTab('timetable')}
-            className={`py-2 px-1 text-xs font-bold rounded-lg transition text-center flex items-center justify-center gap-1 ${
+            className={`py-2 px-1 text-[11px] font-bold rounded-lg transition text-center flex items-center justify-center gap-0.5 ${
               activeTab === 'timetable'
                 ? 'bg-orange-500 text-white shadow-md shadow-orange-500/20'
                 : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/50'
             }`}
           >
-            Thời khóa biểu
+            Lịch học
             {scheduleItems.length > 0 && (
-              <span className="w-4 h-4 rounded-full bg-slate-950/60 text-[10px] flex items-center justify-center font-mono">
+              <span className="w-3.5 h-3.5 rounded-full bg-slate-950/60 text-[9px] flex items-center justify-center font-mono">
                 {scheduleItems.length}
               </span>
             )}
           </button>
           <button
+            id="tab-btn-auto"
+            onClick={() => setActiveTab('auto1touch')}
+            className={`py-2 px-1 text-[11px] font-bold rounded-lg transition text-center ${
+              activeTab === 'auto1touch'
+                ? 'bg-orange-500 text-white shadow-md shadow-orange-500/20'
+                : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/50'
+            }`}
+          >
+            1-Chạm Auto
+          </button>
+          <button
             id="tab-btn-simulator"
             onClick={() => setActiveTab('simulator')}
-            className={`py-2 px-1 text-xs font-bold rounded-lg transition text-center ${
+            className={`py-2 px-1 text-[11px] font-bold rounded-lg transition text-center ${
               activeTab === 'simulator'
                 ? 'bg-orange-500 text-white shadow-md shadow-orange-500/20'
                 : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/50'
             }`}
           >
-            Giả lập FAP
+            Giả lập
           </button>
           <button
             id="tab-btn-deploy"
             onClick={() => setActiveTab('deploy')}
-            className={`py-2 px-1 text-xs font-bold rounded-lg transition text-center ${
+            className={`py-2 px-1 text-[11px] font-bold rounded-lg transition text-center ${
               activeTab === 'deploy'
                 ? 'bg-orange-500 text-white shadow-md shadow-orange-500/20'
                 : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/50'
@@ -462,9 +476,13 @@ export default function App() {
 
                   <div className="flex items-start gap-3 p-3 rounded-xl bg-slate-950/60 border border-slate-800">
                     <span className="w-6 h-6 rounded-full bg-orange-500/20 text-orange-400 font-bold flex items-center justify-center shrink-0">4</span>
-                    <div>
-                      <strong className="text-white block">Chạy Bookmarklet trên FAP</strong>
-                      <span className="text-slate-400">Mở tab mới, vào <code>fap.fpt.edu.vn</code> &rarr; vào <strong>Weekly Timetable</strong> &rarr; chạm vào thanh địa chỉ Safari, gõ <code>FAP Sync</code> và bấm vào gợi ý dấu trang.</span>
+                    <div className="space-y-1.5">
+                      <strong className="text-white block">Chạy Bookmarklet trên trang FAP (2 cách siêu dễ)</strong>
+                      <p className="text-slate-400">Mở Safari, vào <code>fap.fpt.edu.vn</code> &rarr; vào <strong>Weekly Timetable</strong>:</p>
+                      <div className="p-2 rounded-lg bg-slate-900 border border-slate-700/80 space-y-1 text-[11px] text-slate-300">
+                        <p><strong className="text-orange-400">Cách A (Nhanh nhất):</strong> Bấm biểu tượng <strong>Cuốn sách 📖</strong> dưới đáy Safari &rarr; chọn <em>Mục ưa thích</em> &rarr; bấm vào <strong>FAP Sync</strong>.</p>
+                        <p><strong className="text-orange-400">Cách B:</strong> Chạm vào thanh địa chỉ Safari &rarr; gõ <code>FAP Sync</code> &rarr; nhìn danh sách gợi ý, bấm vào dòng có <strong>biểu tượng cuốn sách 📖</strong> (không bấm nút Tìm kiếm trên bàn phím).</p>
+                      </div>
                     </div>
                   </div>
 
@@ -616,7 +634,181 @@ export default function App() {
           </div>
         )}
 
-        {/* TAB 3: SIMULATOR & TEST TRÍCH XUẤT FAP */}
+        {/* TAB 3: TỰ ĐỘNG HÓA 1-CHẠM (ZERO FRICTION AUTO-SYNC) */}
+        {activeTab === 'auto1touch' && (
+          <div className="space-y-4">
+            {/* Phân tích kỹ thuật */}
+            <section className="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-xl space-y-3">
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 rounded-lg bg-orange-500/20 text-orange-400 flex items-center justify-center font-extrabold text-sm">
+                  <Shield className="w-4 h-4" />
+                </div>
+                <div>
+                  <h2 className="text-sm font-bold text-white">Tại sao cần cơ chế 1-Chạm từ điện thoại?</h2>
+                  <p className="text-[11px] text-slate-400">Rào cản bảo mật của Google 2FA & Trình duyệt</p>
+                </div>
+              </div>
+
+              <p className="text-xs text-slate-300 leading-relaxed">
+                Trang web này <strong className="text-orange-400">không thể tự ý chui ngầm vào FAP</strong> để cào dữ liệu vì 2 lý do bảo mật:
+              </p>
+
+              <div className="space-y-2 text-xs">
+                <div className="p-3 rounded-xl bg-slate-950/70 border border-slate-800 text-slate-400 leading-relaxed">
+                  <strong className="text-white block mb-0.5">1. Cơ chế Same-Origin Policy (SOP):</strong>
+                  Safari và Chrome ngăn chặn bất kỳ trang web bên ngoài nào đọc trộm Cookie hay HTML của trang web khác (fap.fpt.edu.vn).
+                </div>
+                <div className="p-3 rounded-xl bg-slate-950/70 border border-slate-800 text-slate-400 leading-relaxed">
+                  <strong className="text-white block mb-0.5">2. Xác thực 2 bước Google Workspace (@fpt.edu.vn):</strong>
+                  FAP bắt buộc sinh viên xác nhận OTP/Prompt 2FA trên điện thoại, khiến bot headless server không thể tự đăng nhập ngầm.
+                </div>
+              </div>
+
+              <div className="p-3 rounded-xl bg-orange-500/10 border border-orange-500/20 text-xs text-orange-300">
+                💡 <strong>Giải pháp tối ưu:</strong> Sử dụng <strong>Phím tắt iOS (Apple Shortcut)</strong> hoặc <strong>Userscript tự động</strong> để biến thao tác thành <strong>1 CHẠM DUY NHẤT</strong> từ màn hình chính điện thoại!
+              </div>
+            </section>
+
+            {/* Giải pháp 1: iOS Shortcuts (Phím tắt Apple 1-chạm) */}
+            <section className="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-xl space-y-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <div className="w-8 h-8 rounded-lg bg-orange-500/20 text-orange-400 flex items-center justify-center font-extrabold text-sm">
+                    <Smartphone className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <h2 className="text-sm font-bold text-white">Cách 1: Phím tắt iOS (Apple Shortcuts)</h2>
+                    <p className="text-[11px] text-slate-400">1 chạm từ Widget / Màn hình chính iPhone</p>
+                  </div>
+                </div>
+
+                <span className="text-[10px] font-mono bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-2 py-0.5 rounded">
+                  Khuyên dùng iOS
+                </span>
+              </div>
+
+              <div className="space-y-3 text-xs text-slate-300">
+                <div className="p-3 rounded-xl bg-slate-950/80 border border-slate-800 space-y-2">
+                  <strong className="text-white block font-semibold">Quy trình 1-Chạm hoạt động như thế nào?</strong>
+                  <ol className="list-decimal list-inside space-y-1.5 text-slate-400">
+                    <li>Bạn bấm vào icon <strong>"FAP Sync"</strong> trên Màn hình chính hoặc Widget iPhone.</li>
+                    <li>Phím tắt tự mở Safari vào thẳng trang <code>fap.fpt.edu.vn</code> (đã lưu sẵn tài khoản Google).</li>
+                    <li>Tự động chạy tác vụ <em>"Chạy JavaScript trên trang web"</em> để bóc tách thời khóa biểu và gửi về máy chủ.</li>
+                    <li>Tự kích hoạt luồng <code>webcal://</code> và Lịch iPhone tự động cập nhật ngay lập tức!</li>
+                  </ol>
+                </div>
+
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between text-xs">
+                    <span className="text-slate-400 font-medium">Mã JavaScript cấu hình cho tác vụ Shortcut:</span>
+                    <button
+                      onClick={() => {
+                        const shortcutScript = `var s=document.createElement('script');s.src='${origin}/bookmarklet.js?t='+Date.now();document.body.appendChild(s);completion(true);`;
+                        navigator.clipboard.writeText(shortcutScript).then(() => {
+                          setCopiedShortcutJs(true);
+                          setTimeout(() => setCopiedShortcutJs(false), 2500);
+                        });
+                      }}
+                      className="text-orange-400 hover:text-orange-300 font-semibold flex items-center gap-1"
+                    >
+                      {copiedShortcutJs ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
+                      <span>{copiedShortcutJs ? 'Đã chép mã!' : 'Sao chép mã'}</span>
+                    </button>
+                  </div>
+
+                  <div className="p-2.5 rounded-lg bg-slate-950 font-mono text-[11px] text-slate-400 border border-slate-800 break-all">
+                    {`var s=document.createElement('script');s.src='${origin}/bookmarklet.js?t='+Date.now();document.body.appendChild(s);completion(true);`}
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            {/* Giải pháp 2: Userscript (Tampermonkey) tự động 100% khi vào FAP */}
+            <section className="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-xl space-y-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <div className="w-8 h-8 rounded-lg bg-orange-500/20 text-orange-400 flex items-center justify-center font-extrabold text-sm">
+                    <Sparkles className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <h2 className="text-sm font-bold text-white">Cách 2: Userscript Tự Động (Tampermonkey)</h2>
+                    <p className="text-[11px] text-slate-400">Tự động hiện nút Đồng bộ nổi khi mở FAP</p>
+                  </div>
+                </div>
+
+                <a
+                  href="/fap_userscript.user.js"
+                  target="_blank"
+                  className="text-[10px] font-bold bg-orange-500 hover:bg-orange-600 text-white px-2.5 py-1 rounded shadow"
+                >
+                  Cài Userscript
+                </a>
+              </div>
+
+              <p className="text-xs text-slate-300 leading-relaxed">
+                Nếu bạn dùng trình duyệt hỗ trợ tiện ích mở rộng (Safari Extension trên iOS, Kiwi Browser trên Android, hoặc Chrome trên máy tính): Cài tiện ích <strong>Tampermonkey</strong> &rarr; cài file script trên. Khi vào FAP, nút đồng bộ sẽ tự động xuất hiện ở góc phải màn hình!
+              </p>
+            </section>
+
+            {/* Giải pháp 3: Nhập nhanh HTML FAP (Quick Paste) */}
+            <section className="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-xl space-y-3">
+              <div className="flex items-center justify-between">
+                <h2 className="text-sm font-bold text-white flex items-center gap-2">
+                  <Code2 className="w-4 h-4 text-orange-400" />
+                  Cách 3: Dán trực tiếp HTML FAP (Quick Paste)
+                </h2>
+                <span className="text-[10px] text-slate-400 font-mono">Bóc tách tức thì</span>
+              </div>
+
+              <p className="text-xs text-slate-400 leading-relaxed">
+                Mở FAP &rarr; bấm phím <kbd className="px-1.5 py-0.5 rounded bg-slate-800 text-slate-300 font-mono text-[10px]">Ctrl + A</kbd> (hoặc bôi đen toàn bộ trang FAP) rồi dán vào khung dưới đây:
+              </p>
+
+              <textarea
+                value={pastedHtml}
+                onChange={(e) => setPastedHtml(e.target.value)}
+                rows={3}
+                placeholder="Dán nội dung hoặc mã nguồn HTML từ trang FAP vào đây..."
+                className="w-full text-xs font-mono p-3 bg-slate-950 border border-slate-800 rounded-xl text-slate-300 focus:outline-none focus:border-orange-500 resize-none"
+              ></textarea>
+
+              <button
+                onClick={async () => {
+                  if (!pastedHtml.trim()) {
+                    alert('Vui lòng dán nội dung từ FAP vào khung trước!');
+                    return;
+                  }
+                  setIsLoading(true);
+                  try {
+                    const res = await fetch('/api/extract-html', {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({ html: pastedHtml, studentId: userId || 'SE170001' })
+                    });
+                    const json = await res.json();
+                    if (json.success) {
+                      await fetchSchedule(userId || 'SE170001');
+                      setActiveTab('timetable');
+                      alert(json.message || 'Đã bóc tách thành công!');
+                    } else {
+                      alert('Lỗi: ' + json.message);
+                    }
+                  } catch (e: any) {
+                    alert('Lỗi bóc tách: ' + e.message);
+                  } finally {
+                    setIsLoading(false);
+                  }
+                }}
+                className="w-full py-2.5 px-4 rounded-xl bg-orange-500 hover:bg-orange-600 text-white font-bold text-xs shadow-md transition flex items-center justify-center gap-2"
+              >
+                <Play className="w-3.5 h-3.5" />
+                <span>Bóc tách & Đồng bộ ngay vào Lịch</span>
+              </button>
+            </section>
+          </div>
+        )}
+
+        {/* TAB 4: SIMULATOR & TEST TRÍCH XUẤT FAP */}
         {activeTab === 'simulator' && (
           <div className="space-y-4">
             <section id="simulator-card" className="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-xl space-y-4">
