@@ -337,21 +337,55 @@ const handleFeedRequest = (req, res) => {
     if (userId && userId.endsWith('.ics')) {
       userId = userId.replace(/\.ics$/i, '');
     }
-    userId = (userId || 'demo').toLowerCase();
+    userId = (userId || '').trim().toLowerCase();
+    if (!userId) userId = 'demo';
 
     let userData = scheduleDatabase[userId];
     if (!userData || !userData.schedule || userData.schedule.length === 0) {
-      // Tự động khởi tạo lịch ban đầu để Apple Calendar / Google Calendar luôn xác thực thành công 100%
-      const initialSchedule = generateSampleSchedule(userId.toUpperCase());
-      userData = {
-        userId,
-        studentId: userId.toUpperCase(),
-        studentName: 'Quang Thành Đạt',
-        updatedAt: new Date().toISOString(),
-        schedule: initialSchedule
-      };
-      scheduleDatabase[userId] = userData;
-      persistDatabase();
+      if (userId === 'demo' || userId === 'ce180531' || userId === 'datqtce180531') {
+        const initialSchedule = generateSampleSchedule('CE180531');
+        userData = {
+          userId,
+          studentId: 'CE180531',
+          studentName: 'Quang Thành Đạt',
+          updatedAt: new Date().toISOString(),
+          schedule: initialSchedule
+        };
+        scheduleDatabase[userId] = userData;
+        persistDatabase();
+      } else {
+        const studentCode = userId.toUpperCase();
+        const noticeIcs = [
+          'BEGIN:VCALENDAR',
+          'VERSION:2.0',
+          'PRODID:-//FAP FPT Calendar Sync//VI',
+          `X-WR-CALNAME:Lịch học FAP - ${studentCode}`,
+          'X-WR-TIMEZONE:Asia/Ho_Chi_Minh',
+          'CALSCALE:GREGORIAN',
+          'METHOD:PUBLISH',
+          'BEGIN:VEVENT',
+          `UID:notice-${userId}-${Date.now()}@fap.fpt.edu.vn`,
+          'DTSTAMP:20260916T000000Z',
+          'DTSTART:20260916T070000',
+          'DTEND:20260916T091500',
+          `SUMMARY:⚠️ ${studentCode} chưa đồng bộ thời khóa biểu FAP`,
+          'DESCRIPTION:Bạn chưa trích xuất thời khóa biểu FAP của mình lên hệ thống. Vui lòng mở trang FAP Weekly Timetable và bấm Bookmarklet để đồng bộ lịch riêng của bạn nhé!',
+          'LOCATION:FAP FPT',
+          'STATUS:CONFIRMED',
+          'BEGIN:VALARM',
+          'ACTION:DISPLAY',
+          'DESCRIPTION:Nhắc nhở đồng bộ lịch FAP',
+          'TRIGGER:-PT15M',
+          'END:VALARM',
+          'END:VEVENT',
+          'END:VCALENDAR'
+        ].join('\r\n');
+
+        res.setHeader('Content-Type', 'text/calendar; charset=utf-8');
+        res.setHeader('Content-Disposition', `inline; filename="FAP_${studentCode}.ics"`);
+        res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+        return res.send(noticeIcs);
+      }
     }
 
     const icsContent = buildICalendarFeed(userData, userData.schedule);
@@ -411,19 +445,32 @@ app.get('/api/schedule/:userId', (req, res) => {
     }
   } catch (e) {}
 
-  const userId = (req.params.userId || 'demo').toLowerCase();
+  const userId = (req.params.userId || '').trim().toLowerCase();
+  if (!userId) {
+    return res.status(400).json({ success: false, message: 'Vui lòng cung cấp mã sinh viên' });
+  }
+
   let data = scheduleDatabase[userId];
   if (!data) {
-    const fullSched = generateSampleSchedule(userId.toUpperCase());
-    data = {
-      userId,
+    if (userId === 'demo' || userId === 'ce180531' || userId === 'datqtce180531') {
+      const fullSched = generateSampleSchedule('CE180531');
+      data = {
+        userId,
+        studentId: 'CE180531',
+        studentName: 'Quang Thành Đạt',
+        updatedAt: new Date().toISOString(),
+        schedule: fullSched
+      };
+      scheduleDatabase[userId] = data;
+      persistDatabase();
+      return res.json({ success: true, data });
+    }
+    return res.status(404).json({
+      success: false,
+      exists: false,
       studentId: userId.toUpperCase(),
-      studentName: 'Quang Thành Đạt',
-      updatedAt: new Date().toISOString(),
-      schedule: fullSched
-    };
-    scheduleDatabase[userId] = data;
-    persistDatabase();
+      message: `Chưa có dữ liệu thời khóa biểu cho sinh viên ${userId.toUpperCase()}. Bạn hãy bấm Bookmarklet trên FAP hoặc dán HTML để tải lên lịch của bạn nhé!`
+    });
   }
   return res.json({ success: true, data });
 });

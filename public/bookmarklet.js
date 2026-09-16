@@ -24,35 +24,46 @@
 
     // 2. Tìm mã sinh viên tự động từ trang FAP
     let detectedStudentCode = '';
-    let studentName = 'Quang Thành Đạt';
+    let studentName = '';
     try {
+      // Kiểm tra tham số URL rollNumber nếu có
+      const urlParams = new URLSearchParams(window.location.search);
+      const urlRoll = urlParams.get('rollNumber') || urlParams.get('roll') || '';
+      if (urlRoll) detectedStudentCode = urlRoll.trim().toUpperCase();
+
       const bodyText = document.body.innerText || document.body.textContent || '';
-      // Tìm dòng đặc trưng: "Activities for DatQTCE180531 (Quang Thành Đạt)"
-      const actMatch = bodyText.match(/Activities for\s+([A-Za-z0-9_]+)\s*\(([^)]+)\)/i);
+      // Tìm dòng đặc trưng của FAP: "Activities for DatQTCE180531 (Quang Thành Đạt)" hoặc "Activities for SE182345 (Nguyễn Văn A)"
+      const actMatch = bodyText.match(/Activities for\s+([A-Za-z0-9_]+)\s*(?:\(([^)]+)\))?/i);
       if (actMatch) {
-        detectedStudentCode = actMatch[1].trim().toUpperCase();
-        studentName = actMatch[2].trim();
+        if (!detectedStudentCode) detectedStudentCode = actMatch[1].trim().toUpperCase();
+        if (actMatch[2]) studentName = actMatch[2].trim();
       } else {
-        // Tìm mã sinh viên dạng CE180531, HE171234, SE160000, QE180000...
-        const codeMatches = bodyText.match(/\b([A-Z]{2,8}\d{5,7})\b/g);
-        if (codeMatches && codeMatches.length > 0) {
+        // Tìm mã sinh viên FPT dạng chuẩn: SE180123, CE180531, HE170456, QE180001, IA180000...
+        const codeMatches = bodyText.match(/\b([A-Z]{2,4}\d{6})\b/g);
+        if (codeMatches && codeMatches.length > 0 && !detectedStudentCode) {
           detectedStudentCode = codeMatches[0].toUpperCase();
         }
       }
-      const userEl = document.querySelector('#ctl00_lblUser, .user-name, #lblUser, .dropdown-toggle');
+
+      const userEl = document.querySelector('#ctl00_lblUser, .user-name, #lblUser, .dropdown-toggle, #ctl00_mainContent_lblStudent');
       if (userEl && userEl.innerText.trim()) {
-        studentName = userEl.innerText.trim();
+        const uText = userEl.innerText.trim();
+        const m = uText.match(/([A-Z]{2,4}\d{6})/i);
+        if (m && !detectedStudentCode) detectedStudentCode = m[1].toUpperCase();
+        const cleanName = uText.replace(/\([A-Za-z0-9_]+\)/g, '').replace(/\|.*/, '').trim();
+        if (cleanName && !studentName) studentName = cleanName;
       }
     } catch (e) {}
 
-    // Xác nhận Mã số sinh viên với người dùng
-    const defaultId = detectedStudentCode || 'CE180531';
+    // Xác nhận Mã số sinh viên với người dùng (không gán cứng mã của người khác)
+    const defaultId = detectedStudentCode || '';
     const promptCode = prompt(
-      '🎓 BƯỚC 1: Xác nhận Mã số sinh viên của bạn để tạo link Lịch riêng:\n(Ví dụ: CE180531, DatQTCE180531...)',
+      '🎓 BƯỚC 1: Xác nhận Mã số sinh viên của bạn để tạo link Lịch riêng:\n(Ví dụ: SE180123, CE180531, HE170456...)',
       defaultId
     );
 
-    if (!promptCode) {
+    if (!promptCode || !promptCode.trim()) {
+      alert('⚠️ Bạn chưa nhập mã sinh viên. Quá trình đồng bộ đã dừng.');
       return; // Người dùng bấm Hủy
     }
     const studentCode = promptCode.trim().toUpperCase();
@@ -390,22 +401,25 @@
     }
 
     const cleanUserId = studentCode.toLowerCase();
-    const liveFeedUrl = `https://fap-calendar-sync.onrender.com/api/feed/${cleanUserId}.ics`;
-    const webcalUrl = `webcal://fap-calendar-sync.onrender.com/api/feed/${cleanUserId}.ics`;
+    const hostOnly = BACKEND_URL.replace(/^https?:\/\//, '');
+    const liveFeedUrl = `${BACKEND_URL}/api/feed/${cleanUserId}.ics`;
+    const webcalUrl = `webcal://${hostOnly}/api/feed/${cleanUserId}.ics`;
+    const portalUrl = `${BACKEND_URL}?userId=${cleanUserId}`;
 
     if (syncSuccess) {
       alert(
-        `✅ ĐÃ LƯU THỜI KHÓA BIỂU THỰC LÊN MÁY CHỦ THÀNH CÔNG!\n\n` +
-        `Mã SV: ${studentCode}\n` +
-        `Link lịch thực của bạn là:\n${liveFeedUrl}\n\n` +
-        `👉 Bấm OK, máy sẽ tự động kích hoạt Lịch iPhone (Apple Calendar) của bạn ngay!`
+        `✅ ĐÃ LƯU THỜI KHÓA BIỂU CHO ${studentCode} ${studentName ? `(${studentName})` : ''} THÀNH CÔNG!\n\n` +
+        `• Tổng số ca: ${scheduleItems.length} ca học\n` +
+        `• Link lịch riêng của bạn:\n${liveFeedUrl}\n\n` +
+        `👉 Bấm OK, máy sẽ tự động đăng ký vào ứng dụng Lịch (Apple Calendar / Google Calendar) trên thiết bị của bạn!`
       );
       // Mở Webcal
       window.location.href = webcalUrl;
     } else {
       alert(
-        `⚠️ Máy chủ Render đang khởi động lại, đã tạo file lịch trực tiếp cho bạn!\n\n` +
-        `Link lịch của bạn:\n${liveFeedUrl}`
+        `✅ Đã trích xuất ${scheduleItems.length} ca học cho ${studentCode}!\n\n` +
+        `Link lịch riêng của bạn:\n${liveFeedUrl}\n\n` +
+        `👉 Bấm OK để mở Lịch điện thoại!`
       );
       window.location.href = webcalUrl;
     }

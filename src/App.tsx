@@ -28,7 +28,18 @@ import { SLOT_CONFIG } from './slotConfig.js';
 import { ScheduleItem, UserScheduleData } from './types.js';
 
 export default function App() {
-  const [userId, setUserId] = useState<string>('ce180531');
+  // Lấy userId từ localStorage hoặc URL, không ép cứng mã cá nhân cho mọi người
+  const [userId, setUserId] = useState<string>(() => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      const qUser = params.get('userId') || params.get('id');
+      if (qUser) return qUser.trim().toUpperCase();
+      const saved = localStorage.getItem('fap_sync_user_id');
+      if (saved) return saved.trim().toUpperCase();
+    }
+    return '';
+  });
+
   const [scheduleData, setScheduleData] = useState<UserScheduleData | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [activeTab, setActiveTab] = useState<'sync' | 'timetable' | 'auto1touch' | 'simulator' | 'deploy'>('sync');
@@ -48,22 +59,29 @@ export default function App() {
   const origin = typeof window !== 'undefined' ? window.location.origin : 'https://fap-sync.fpt.edu.vn';
   const host = typeof window !== 'undefined' ? window.location.host : 'fap-sync.fpt.edu.vn';
 
-  // Lấy userId từ URL nếu có
-  useEffect(() => {
+  // Lưu mã SV riêng của người dùng vào localStorage
+  const handleUserIdChange = (newVal: string) => {
+    const clean = newVal.trim().toUpperCase();
+    setUserId(clean);
     if (typeof window !== 'undefined') {
-      const params = new URLSearchParams(window.location.search);
-      const qUser = params.get('userId');
-      if (qUser) {
-        setUserId(qUser.toLowerCase());
+      if (clean) {
+        localStorage.setItem('fap_sync_user_id', clean);
+      } else {
+        localStorage.removeItem('fap_sync_user_id');
       }
     }
-  }, []);
+  };
 
   // Tải dữ liệu lịch của user
   const fetchSchedule = async (idToFetch: string) => {
+    const clean = (idToFetch || '').trim().toLowerCase();
+    if (!clean) {
+      setScheduleData(null);
+      return;
+    }
     setIsLoading(true);
     try {
-      const res = await fetch(`/api/schedule/${idToFetch.toLowerCase()}`);
+      const res = await fetch(`/api/schedule/${clean}`);
       if (res.ok) {
         const json = await res.json();
         if (json.success && json.data) {
@@ -71,34 +89,41 @@ export default function App() {
           return;
         }
       }
-      // Nếu chưa có, nạp demo
-      await seedDemoSchedule(idToFetch);
+      // Không tự ý nạp lịch của người khác cho sinh viên mới
+      setScheduleData(null);
     } catch (e) {
       console.warn('Không thể tải dữ liệu lịch:', e);
+      setScheduleData(null);
     } finally {
       setIsLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchSchedule(userId);
+    if (userId) {
+      fetchSchedule(userId);
+    } else {
+      setScheduleData(null);
+    }
   }, [userId]);
 
-  // Nạp lịch demo
-  const seedDemoSchedule = async (targetId: string) => {
+  // Nạp lịch demo mẫu
+  const seedDemoSchedule = async (targetId: string = 'CE180531') => {
     try {
       setIsLoading(true);
+      const cleanId = (targetId || 'CE180531').toUpperCase();
+      handleUserIdChange(cleanId);
       const res = await fetch('/api/demo-seed', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ studentId: targetId })
+        body: JSON.stringify({ studentId: cleanId })
       });
       const data = await res.json();
       if (data.success) {
-        const fetchRes = await fetch(`/api/schedule/${targetId.toLowerCase()}`);
+        const fetchRes = await fetch(`/api/schedule/${cleanId.toLowerCase()}`);
         const scheduleJson = await fetchRes.json();
         setScheduleData(scheduleJson.data);
-        setSyncStatusMsg('Đã nạp thời khóa biểu cả học kỳ (10 tuần, 110 ca học) thành công!');
+        setSyncStatusMsg(`Đã nạp thời khóa biểu mẫu cho sinh viên ${cleanId} thành công!`);
         setTimeout(() => setSyncStatusMsg(''), 4000);
       }
     } catch (err) {
@@ -235,17 +260,17 @@ export default function App() {
           </p>
 
           {/* User selector / Student Code input */}
-          <div className="mt-4 pt-3 border-t border-slate-800/80 flex items-center justify-between gap-3">
+          <div className="mt-4 pt-3 border-t border-slate-800/80 flex items-center justify-between gap-3 flex-wrap">
             <div className="flex items-center gap-2 text-xs">
-              <span className="text-slate-400 font-medium">Mã SV:</span>
+              <span className="text-slate-400 font-medium">Mã SV của bạn:</span>
               <div className="relative flex items-center">
                 <input
                   id="student-code-input"
                   type="text"
                   value={userId}
-                  onChange={(e) => setUserId(e.target.value.trim().toUpperCase())}
-                  placeholder="SE170001"
-                  className="bg-slate-800 border border-slate-700 rounded-lg px-2.5 py-1 text-xs font-mono font-bold text-orange-400 uppercase w-28 focus:outline-none focus:border-orange-500"
+                  onChange={(e) => handleUserIdChange(e.target.value)}
+                  placeholder="VD: SE180123"
+                  className="bg-slate-800 border border-slate-700 rounded-lg px-2.5 py-1 text-xs font-mono font-bold text-orange-400 uppercase w-32 focus:outline-none focus:border-orange-500"
                 />
               </div>
             </div>
@@ -262,11 +287,11 @@ export default function App() {
 
               <button
                 id="btn-seed-sample"
-                onClick={() => seedDemoSchedule(userId || 'demo')}
+                onClick={() => seedDemoSchedule('CE180531')}
                 className="flex items-center gap-1 text-xs font-bold text-orange-400 hover:text-orange-300 px-2.5 py-1 bg-orange-500/10 hover:bg-orange-500/20 rounded-lg border border-orange-500/30 transition"
               >
                 <Sparkles className="w-3.5 h-3.5" />
-                <span>Nạp mẫu FPT</span>
+                <span>Xem lịch mẫu</span>
               </button>
             </div>
           </div>
@@ -728,7 +753,37 @@ export default function App() {
                 )}
               </div>
 
-              {sortedItems.length === 0 ? (
+              {scheduleItems.length === 0 ? (
+                <div className="p-8 text-center bg-slate-950/60 rounded-xl border border-slate-800 space-y-3">
+                  <Calendar className="w-10 h-10 text-orange-500/50 mx-auto" />
+                  <h3 className="text-sm font-bold text-white">
+                    {userId ? `Chưa có lịch học cho sinh viên ${userId}` : 'Bạn chưa nhập mã sinh viên'}
+                  </h3>
+                  <p className="text-xs text-slate-400 max-w-md mx-auto leading-relaxed">
+                    Hệ thống đảm bảo tính riêng tư tuyệt đối: mỗi sinh viên có luồng lịch riêng và không bao giờ bị trùng lịch của người khác. Bạn hãy mở FAP và bấm Bookmarklet để tải lịch của mình lên nhé!
+                  </p>
+                  <div className="flex items-center justify-center gap-2 pt-2 flex-wrap">
+                    <button
+                      onClick={() => setActiveTab('sync')}
+                      className="text-xs font-bold text-white bg-orange-500 hover:bg-orange-600 px-3.5 py-2 rounded-lg shadow-md transition"
+                    >
+                      🚀 Hướng dẫn dùng Bookmarklet
+                    </button>
+                    <button
+                      onClick={() => setActiveTab('auto1touch')}
+                      className="text-xs font-medium text-slate-300 bg-slate-800 hover:bg-slate-700 px-3.5 py-2 rounded-lg border border-slate-700 transition"
+                    >
+                      📋 Dán mã HTML FAP
+                    </button>
+                    <button
+                      onClick={() => seedDemoSchedule('CE180531')}
+                      className="text-xs font-bold text-orange-400 bg-orange-500/10 hover:bg-orange-500/20 px-3.5 py-2 rounded-lg border border-orange-500/30 transition"
+                    >
+                      👁️ Xem lịch mẫu (CE180531)
+                    </button>
+                  </div>
+                </div>
+              ) : sortedItems.length === 0 ? (
                 <div className="p-8 text-center bg-slate-950/60 rounded-xl border border-slate-800 space-y-3">
                   <Calendar className="w-8 h-8 text-slate-600 mx-auto" />
                   <p className="text-xs text-slate-400">Không có ca học nào phù hợp với bộ lọc hiện tại.</p>
