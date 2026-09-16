@@ -1,0 +1,6 @@
+{
+  "name": "FAP Calendar Sync",
+  "description": "Hệ thống tự động trích xuất Thời khóa biểu FAP Đại học FPT và đồng bộ vào ứng dụng Lịch điện thoại (iOS / Android) qua Webcal Live Feed.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

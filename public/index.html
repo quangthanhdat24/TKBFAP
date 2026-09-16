@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>FAP Calendar Sync - Đồng bộ Lịch FPT vào iPhone & Android</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif; }
+  </style>
+</head>
+<body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col items-center justify-start p-4 antialiased selection:bg-orange-500 selection:text-white">
+  
+  <div class="w-full max-w-md mx-auto space-y-5 pb-12 pt-4">
+    <!-- Header -->
+    <header class="text-center space-y-2">
+      <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-orange-500/10 border border-orange-500/20 text-orange-400 text-xs font-semibold">
+        <span class="w-2 h-2 rounded-full bg-orange-500 animate-pulse"></span>
+        Đại học FPT • FAP Sync v2.5
+      </div>
+      <h1 class="text-2xl sm:text-3xl font-extrabold tracking-tight text-white">
+        Đồng bộ Lịch FAP <br><span class="text-orange-500">vào Lịch Điện Thoại</span>
+      </h1>
+      <p class="text-sm text-slate-400 leading-relaxed px-2">
+        Tự động trích xuất Thời khóa biểu FAP sang Apple Calendar & Google Calendar với chuông báo trước mỗi ca 15 phút.
+      </p>
+    </header>
+
+    <!-- Trạng thái & Action chính -->
+    <section class="bg-slate-800/90 border border-slate-700/80 rounded-2xl p-5 shadow-xl backdrop-blur-md space-y-4">
+      <div class="flex items-center justify-between border-b border-slate-700/60 pb-3">
+        <div class="flex items-center gap-2">
+          <span class="text-xs font-semibold uppercase text-slate-400">Mã sinh viên:</span>
+          <span id="display-user-id" class="px-2.5 py-0.5 rounded-md bg-slate-700 text-orange-400 font-mono font-bold text-sm">demo</span>
+        </div>
+        <div id="sync-status-badge" class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+          <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> Sẵn sàng
+        </div>
+      </div>
+
+      <!-- Action Button 1: Webcal Live Feed -->
+      <div>
+        <a id="btn-webcal" href="#" class="w-full flex items-center justify-center gap-2.5 py-3.5 px-4 rounded-xl bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white font-bold text-base shadow-lg shadow-orange-500/25 transition active:scale-[0.98]">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+          📲 Đăng ký Lịch Tự Động (Webcal)
+        </a>
+        <p class="text-[11px] text-slate-400 text-center mt-2">
+          iOS Safari sẽ mở popup "Subscribe Calendar", Android sẽ mở Google Calendar.
+        </p>
+      </div>
+
+      <div class="grid grid-cols-2 gap-2 pt-1">
+        <!-- Action Button 2: Tải file .ics -->
+        <a id="btn-download-ics" href="#" class="flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-lg bg-slate-700/80 hover:bg-slate-700 text-slate-200 font-semibold text-xs border border-slate-600/60 transition">
+          <svg class="w-4 h-4 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+          Tải file tĩnh .ics
+        </a>
+
+        <!-- Test Demo Seed -->
+        <button id="btn-seed-demo" class="flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-lg bg-slate-700/80 hover:bg-slate-700 text-orange-400 font-semibold text-xs border border-slate-600/60 transition">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+          Nạp thử Demo (2 tuần)
+        </button>
+      </div>
+    </section>
+
+    <!-- Bookmarklet Section -->
+    <section class="bg-slate-800/90 border border-slate-700/80 rounded-2xl p-5 shadow-xl space-y-4">
+      <div class="flex items-center justify-between">
+        <h2 class="text-base font-bold text-white flex items-center gap-2">
+          <span class="flex items-center justify-center w-6 h-6 rounded-lg bg-orange-500/20 text-orange-400 text-xs font-extrabold">1</span>
+          Mã Bookmarklet Trích Xuất
+        </h2>
+        <span class="text-[11px] font-mono text-slate-400 bg-slate-900/60 px-2 py-0.5 rounded border border-slate-700/40">Pure JS</span>
+      </div>
+
+      <p class="text-xs text-slate-300 leading-relaxed">
+        Bookmarklet giúp vượt qua rào cản 2FA Google Workspace trên FAP bằng cách bóc tách HTML ngay trong phiên làm việc của bạn.
+      </p>
+
+      <div class="relative">
+        <textarea id="bookmarklet-code" readonly rows="3" class="w-full text-xs font-mono p-3 bg-slate-950/80 border border-slate-700 rounded-xl text-slate-300 focus:outline-none select-all resize-none"></textarea>
+        <button id="btn-copy-bookmarklet" class="absolute top-2.5 right-2.5 px-3 py-1.5 bg-orange-500 hover:bg-orange-600 text-white rounded-lg text-xs font-bold shadow transition flex items-center gap-1">
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"></path></svg>
+          <span id="copy-btn-text">Sao chép</span>
+        </button>
+      </div>
+
+      <!-- Hướng dẫn 3 bước -->
+      <div class="space-y-3 pt-2 border-t border-slate-700/60">
+        <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400">Cách cài đặt trên Safari / Chrome điện thoại:</h3>
+        
+        <div class="space-y-2 text-xs text-slate-300">
+          <div class="flex gap-2.5 items-start">
+            <span class="w-5 h-5 rounded-full bg-slate-700 text-slate-200 flex items-center justify-center font-bold text-[10px] shrink-0 mt-0.5">A</span>
+            <div>Bấm <strong>Sao chép</strong> đoạn mã trên. Lưu trang hiện tại vào <strong>Dấu trang (Bookmark)</strong> của trình duyệt với tên <em>"Sync FAP"</em>.</div>
+          </div>
+          <div class="flex gap-2.5 items-start">
+            <span class="w-5 h-5 rounded-full bg-slate-700 text-slate-200 flex items-center justify-center font-bold text-[10px] shrink-0 mt-0.5">B</span>
+            <div>Vào phần quản lý Dấu trang &rarr; <strong>Sửa dấu trang</strong> vừa lưu &rarr; Xóa địa chỉ URL cũ và dán đoạn mã vừa sao chép vào.</div>
+          </div>
+          <div class="flex gap-2.5 items-start">
+            <span class="w-5 h-5 rounded-full bg-slate-700 text-slate-200 flex items-center justify-center font-bold text-[10px] shrink-0 mt-0.5">C</span>
+            <div>Đăng nhập vào <strong>fap.fpt.edu.vn</strong> &rarr; Mở mục <strong>Weekly Timetable</strong> &rarr; Mở thanh địa chỉ, gõ <em>"Sync FAP"</em> và bấm chạy!</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Slot Mapping Reference -->
+    <section class="bg-slate-800/90 border border-slate-700/80 rounded-2xl p-5 shadow-xl space-y-3">
+      <h2 class="text-sm font-bold text-white flex items-center gap-2">
+        <svg class="w-4 h-4 text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+        Khung giờ Slot chuẩn Đại học FPT
+      </h2>
+      <div class="grid grid-cols-2 gap-2 text-xs">
+        <div class="p-2 rounded-lg bg-slate-900/60 border border-slate-700/40">
+          <span class="font-bold text-orange-400">Slot 1:</span> 07:00 - 09:15
+        </div>
+        <div class="p-2 rounded-lg bg-slate-900/60 border border-slate-700/40">
+          <span class="font-bold text-orange-400">Slot 2:</span> 09:30 - 11:45
+        </div>
+        <div class="p-2 rounded-lg bg-slate-900/60 border border-slate-700/40">
+          <span class="font-bold text-orange-400">Slot 3:</span> 12:30 - 14:45
+        </div>
+        <div class="p-2 rounded-lg bg-slate-900/60 border border-slate-700/40">
+          <span class="font-bold text-orange-400">Slot 4:</span> 15:00 - 17:15
+        </div>
+        <div class="p-2 rounded-lg bg-slate-900/60 border border-slate-700/40">
+          <span class="font-bold text-orange-400">Slot 5:</span> 17:30 - 19:45
+        </div>
+        <div class="p-2 rounded-lg bg-slate-900/60 border border-slate-700/40">
+          <span class="font-bold text-orange-400">Slot 6:</span> 20:00 - 22:15
+        </div>
+      </div>
+      <div class="flex items-center gap-2 text-[11px] text-slate-400 pt-1">
+        <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+        Tự động cấu hình <code>VALARM</code> nhắc trước mỗi ca 15 phút.
+      </div>
+    </section>
+  </div>
+
+  <script>
+    const urlParams = new URLSearchParams(window.location.search);
+    const userId = urlParams.get('userId') || 'demo';
+    const origin = window.location.origin;
+    const host = window.location.host;
+
+    document.getElementById('display-user-id').innerText = userId;
+
+    const webcalLink = `webcal://${host}/api/feed/${userId}.ics`;
+    const downloadLink = `${origin}/api/export-ics/${userId}`;
+
+    const btnWebcal = document.getElementById('btn-webcal');
+    const btnDownload = document.getElementById('btn-download-ics');
+
+    btnWebcal.href = webcalLink;
+    btnDownload.href = downloadLink;
+
+    // Sinh mã bookmarklet hoàn chỉnh
+    const bookmarkletCode = `javascript:(function(){window.FAP_SYNC_BACKEND_URL='${origin}';var s=document.createElement('script');s.src='${origin}/bookmarklet.js?t='+Date.now();document.body.appendChild(s);})();`;
+    document.getElementById('bookmarklet-code').value = bookmarkletCode;
+
+    // Sao chép bookmarklet
+    document.getElementById('btn-copy-bookmarklet').addEventListener('click', () => {
+      navigator.clipboard.writeText(bookmarkletCode).then(() => {
+        const txt = document.getElementById('copy-btn-text');
+        txt.innerText = 'Đã chép!';
+        setTimeout(() => txt.innerText = 'Sao chép', 2000);
+      });
+    });
+
+    // Nạp dữ liệu Demo test
+    document.getElementById('btn-seed-demo').addEventListener('click', async () => {
+      try {
+        const res = await fetch('/api/demo-seed', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ studentId: userId || 'demo' })
+        });
+        const data = await res.json();
+        alert(data.message || 'Đã nạp dữ liệu mẫu!');
+      } catch (e) {
+        alert('Lỗi nạp dữ liệu demo');
+      }
+    });
+  </script>
+</body>
+</html>
