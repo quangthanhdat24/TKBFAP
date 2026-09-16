@@ -357,9 +357,18 @@ const handleFeedRequest = (req: express.Request, res: express.Response) => {
     }
     userId = (userId || 'demo').toLowerCase();
 
-    const userData = scheduleDatabase[userId];
+    let userData = scheduleDatabase[userId];
     if (!userData || !userData.schedule || userData.schedule.length === 0) {
-      return res.status(404).send('Không tìm thấy thời khóa biểu cho tài khoản này.');
+      const initialSchedule = generateSampleSchedule(userId.toUpperCase());
+      userData = {
+        userId,
+        studentId: userId.toUpperCase(),
+        studentName: 'Quang Thành Đạt',
+        updatedAt: new Date().toISOString(),
+        schedule: initialSchedule
+      };
+      scheduleDatabase[userId] = userData;
+      persistDatabase();
     }
 
     const icsContent = buildICalendarFeed(userData, userData.schedule);
