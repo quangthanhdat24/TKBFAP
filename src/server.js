@@ -152,133 +152,58 @@ export function buildICalendarFeed(studentInfo, items) {
 }
 
 /**
- * Tạo dữ liệu lịch thực tế của Quang Thành Đạt (FPT Cần Thơ)
+ * Tạo dữ liệu lịch cả học kỳ 10 tuần thực tế của Quang Thành Đạt (FPT Cần Thơ)
  */
-function generateSampleSchedule(studentCode) {
-  const code = (studentCode || 'CE180531').toUpperCase();
-  return [
-    {
-      date: '2026-09-14',
-      slot: 1,
-      subject: 'EXE101',
-      room: 'R.A702',
-      teacher: 'Giảng viên EXE101',
-      group: 'CE1805',
-      note: 'EduNext - Đã tham gia (attended)',
-      startTime: '07:00',
-      endTime: '09:15'
-    },
-    {
-      date: '2026-09-14',
-      slot: 3,
-      subject: 'ANR402',
-      room: 'R.A407',
-      teacher: 'Giảng viên ANR402',
-      group: 'CE1805',
-      note: 'Đã tham gia (attended)',
-      startTime: '13:00',
-      endTime: '15:15'
-    },
-    {
-      date: '2026-09-14',
-      slot: 4,
-      subject: 'SDP201',
-      room: 'R.A407',
-      teacher: 'Giảng viên SDP201',
-      group: 'CE1805',
-      note: 'Đã tham gia (attended)',
-      startTime: '15:30',
-      endTime: '17:45'
-    },
-    {
-      date: '2026-09-15',
-      slot: 3,
-      subject: 'ANR402',
-      room: 'R.A405',
-      teacher: 'Giảng viên ANR402',
-      group: 'CE1805',
-      note: 'Đã tham gia (attended)',
-      startTime: '13:00',
-      endTime: '15:15'
-    },
-    {
-      date: '2026-09-15',
-      slot: 4,
-      subject: 'VNC104',
-      room: 'R.A405',
-      teacher: 'Giảng viên VNC104',
-      group: 'CE1805',
-      note: 'EduNext - Đã tham gia (attended)',
-      startTime: '15:30',
-      endTime: '17:45'
-    },
-    {
-      date: '2026-09-16',
-      slot: 2,
-      subject: 'EXE101',
-      room: 'R.A708',
-      teacher: 'Giảng viên EXE101',
-      group: 'CE1805',
-      note: 'EduNext - Đã tham gia (attended)',
-      startTime: '09:30',
-      endTime: '11:45'
-    },
-    {
-      date: '2026-09-16',
-      slot: 3,
-      subject: 'SDP201',
-      room: 'R.A301',
-      teacher: 'Giảng viên SDP201',
-      group: 'CE1805',
-      note: 'Đã tham gia (attended)',
-      startTime: '13:00',
-      endTime: '15:15'
-    },
-    {
-      date: '2026-09-16',
-      slot: 4,
-      subject: 'ANR402',
-      room: 'R.A407',
-      teacher: 'Giảng viên ANR402',
-      group: 'CE1805',
-      note: 'Sắp diễn ra (Not yet)',
-      startTime: '15:30',
-      endTime: '17:45'
-    },
-    {
-      date: '2026-09-17',
-      slot: 3,
-      subject: 'VNC104',
-      room: 'R.A405',
-      teacher: 'Giảng viên VNC104',
-      group: 'CE1805',
-      note: 'Meet URL - EduNext - Online (Not yet)',
-      startTime: '13:00',
-      endTime: '15:15'
-    },
-    {
-      date: '2026-09-17',
-      slot: 4,
-      subject: 'ANR402',
-      room: 'R.A405',
-      teacher: 'Giảng viên ANR402',
-      group: 'CE1805',
-      note: 'Meet URL (Not yet)',
-      startTime: '15:30',
-      endTime: '17:45'
-    },
-    {
-      date: '2026-09-18',
-      slot: 2,
-      subject: 'VNC104',
-      room: 'R.ON01',
-      teacher: 'Giảng viên VNC104',
-      group: 'CE1805',
-      note: 'Meet URL - EduNext - Online (Not yet)',
-      startTime: '09:30',
-      endTime: '11:45'
-    }
+function generateSampleSchedule(studentCode, numWeeks = 10, startMondayStr = '2026-09-07') {
+  const weeklyTemplate = [
+    { dayOffset: 0, slot: 1, subject: 'EXE101', room: 'R.A702', teacher: 'Giảng viên EXE101', group: 'CE1805', note: 'EduNext', startTime: '07:00', endTime: '09:15' },
+    { dayOffset: 0, slot: 3, subject: 'ANR402', room: 'R.A407', teacher: 'Giảng viên ANR402', group: 'CE1805', note: 'Phòng Lab', startTime: '13:00', endTime: '15:15' },
+    { dayOffset: 0, slot: 4, subject: 'SDP201', room: 'R.A407', teacher: 'Giảng viên SDP201', group: 'CE1805', note: 'Thực hành', startTime: '15:30', endTime: '17:45' },
+    { dayOffset: 1, slot: 3, subject: 'ANR402', room: 'R.A405', teacher: 'Giảng viên ANR402', group: 'CE1805', note: 'Lý thuyết & Bài tập', startTime: '13:00', endTime: '15:15' },
+    { dayOffset: 1, slot: 4, subject: 'VNC104', room: 'R.A405', teacher: 'Giảng viên VNC104', group: 'CE1805', note: 'EduNext', startTime: '15:30', endTime: '17:45' },
+    { dayOffset: 2, slot: 2, subject: 'EXE101', room: 'R.A708', teacher: 'Giảng viên EXE101', group: 'CE1805', note: 'EduNext', startTime: '09:30', endTime: '11:45' },
+    { dayOffset: 2, slot: 3, subject: 'SDP201', room: 'R.A301', teacher: 'Giảng viên SDP201', group: 'CE1805', note: 'Đồ án nhóm', startTime: '13:00', endTime: '15:15' },
+    { dayOffset: 2, slot: 4, subject: 'ANR402', room: 'R.A407', teacher: 'Giảng viên ANR402', group: 'CE1805', note: 'Lập trình Android', startTime: '15:30', endTime: '17:45' },
+    { dayOffset: 3, slot: 3, subject: 'VNC104', room: 'R.A405', teacher: 'Giảng viên VNC104', group: 'CE1805', note: 'Meet URL • EduNext • Online', startTime: '13:00', endTime: '15:15' },
+    { dayOffset: 3, slot: 4, subject: 'ANR402', room: 'R.A405', teacher: 'Giảng viên ANR402', group: 'CE1805', note: 'Google Meet • Online', startTime: '15:30', endTime: '17:45' },
+    { dayOffset: 4, slot: 2, subject: 'VNC104', room: 'R.ON01', teacher: 'Giảng viên VNC104', group: 'CE1805', note: 'Meet URL • EduNext • Online', startTime: '09:30', endTime: '11:45' }
   ];
+
+  const [y, m, d] = startMondayStr.split('-').map(Number);
+  const startMonday = new Date(y, m - 1, d);
+  const fullSchedule = [];
+
+  for (let week = 0; week < numWeeks; week++) {
+    const weekMon = new Date(startMonday);
+    weekMon.setDate(startMonday.getDate() + week * 7);
+
+    weeklyTemplate.forEach(item => {
+      const classDate = new Date(weekMon);
+      classDate.setDate(weekMon.getDate() + item.dayOffset);
+      const yr = classDate.getFullYear();
+      const mo = String(classDate.getMonth() + 1).padStart(2, '0');
+      const da = String(classDate.getDate()).padStart(2, '0');
+      const dateStr = `${yr}-${mo}-${da}`;
+
+      const isPast = dateStr < '2026-09-16' || (dateStr === '2026-09-16' && item.slot <= 3);
+      const status = isPast ? 'Đã tham gia (attended)' : 'Sắp diễn ra (Not yet)';
+
+      fullSchedule.push({
+        date: dateStr,
+        slot: item.slot,
+        subject: item.subject,
+        room: item.room,
+        teacher: item.teacher,
+        group: item.group,
+        note: `${item.note} [Tuần ${week + 1}] • ${status}`,
+        startTime: item.startTime,
+        endTime: item.endTime
+      });
+    });
+  }
+
+  fullSchedule.sort((a, b) => (a.date !== b.date ? a.date.localeCompare(b.date) : a.slot - b.slot));
+  return fullSchedule;
 }
 
 // ====================== CÁC API ENDPOINTS ======================
@@ -480,12 +405,112 @@ app.get('/api/export-ics/:userId', (req, res) => {
  * ENDPOINT 4: GET /api/schedule/:userId (Lấy thông tin lịch dạng JSON)
  */
 app.get('/api/schedule/:userId', (req, res) => {
+  try {
+    if (fs.existsSync(DATA_FILE)) {
+      scheduleDatabase = JSON.parse(fs.readFileSync(DATA_FILE, 'utf-8'));
+    }
+  } catch (e) {}
+
   const userId = (req.params.userId || 'demo').toLowerCase();
-  const data = scheduleDatabase[userId];
+  let data = scheduleDatabase[userId];
   if (!data) {
-    return res.status(404).json({ success: false, message: 'Không tìm thấy dữ liệu' });
+    const fullSched = generateSampleSchedule(userId.toUpperCase());
+    data = {
+      userId,
+      studentId: userId.toUpperCase(),
+      studentName: 'Quang Thành Đạt',
+      updatedAt: new Date().toISOString(),
+      schedule: fullSched
+    };
+    scheduleDatabase[userId] = data;
+    persistDatabase();
   }
   return res.json({ success: true, data });
+});
+
+/**
+ * ENDPOINT: POST /api/replicate-semester (Nhân bản lịch 1 tuần ra cả học kỳ 10-15 tuần)
+ */
+app.post('/api/replicate-semester', (req, res) => {
+  try {
+    if (fs.existsSync(DATA_FILE)) {
+      scheduleDatabase = JSON.parse(fs.readFileSync(DATA_FILE, 'utf-8'));
+    }
+  } catch (e) {}
+
+  const { userId, weeksCount = 10, startMonday = '2026-09-07' } = req.body;
+  const cleanId = (userId || 'CE180531').toString().trim().toUpperCase().replace(/[^A-Z0-9_-]/g, '') || 'CE180531';
+  const normId = cleanId.toLowerCase();
+
+  let currentSchedule = scheduleDatabase[normId]?.schedule || [];
+  let fullSchedule = [];
+
+  if (currentSchedule.length > 0) {
+    const dayMap = {};
+    currentSchedule.forEach((item) => {
+      const itemDate = new Date(item.date);
+      const dayOfWeek = (itemDate.getDay() + 6) % 7; // 0: T2 ... 6: CN
+      if (!dayMap[dayOfWeek]) dayMap[dayOfWeek] = [];
+      if (!dayMap[dayOfWeek].some((x) => x.slot === item.slot && x.subject === item.subject)) {
+        dayMap[dayOfWeek].push(item);
+      }
+    });
+
+    const [sy, sm, sd] = startMonday.split('-').map(Number);
+    const baseMonday = new Date(sy, sm - 1, sd);
+
+    for (let w = 0; w < weeksCount; w++) {
+      const wMon = new Date(baseMonday);
+      wMon.setDate(baseMonday.getDate() + w * 7);
+
+      for (let dow = 0; dow < 7; dow++) {
+        const classesThisDay = dayMap[dow] || [];
+        const curDate = new Date(wMon);
+        curDate.setDate(wMon.getDate() + dow);
+        const cDateStr = `${curDate.getFullYear()}-${String(curDate.getMonth() + 1).padStart(2, '0')}-${String(curDate.getDate()).padStart(2, '0')}`;
+
+        classesThisDay.forEach((c) => {
+          const isPast = cDateStr < '2026-09-16' || (cDateStr === '2026-09-16' && c.slot <= 3);
+          const status = isPast ? 'Đã tham gia (attended)' : 'Sắp diễn ra (Not yet)';
+          fullSchedule.push({
+            date: cDateStr,
+            slot: c.slot,
+            subject: c.subject,
+            room: c.room,
+            teacher: c.teacher || 'Giảng viên FPT',
+            group: c.group || '',
+            note: `${c.note ? c.note.replace(/\[Tuần \d+\]/g, '').replace(/• (Đã tham gia|Sắp diễn ra).*/, '').trim() : ''} [Tuần ${w + 1}] • ${status}`,
+            startTime: c.startTime,
+            endTime: c.endTime
+          });
+        });
+      }
+    }
+  } else {
+    fullSchedule = generateSampleSchedule(cleanId, weeksCount, startMonday);
+  }
+
+  fullSchedule.sort((a, b) => (a.date !== b.date ? a.date.localeCompare(b.date) : a.slot - b.slot));
+
+  scheduleDatabase[normId] = {
+    userId: normId,
+    studentId: cleanId,
+    studentName: scheduleDatabase[normId]?.studentName || 'Quang Thành Đạt',
+    updatedAt: new Date().toISOString(),
+    schedule: fullSchedule
+  };
+  persistDatabase();
+
+  const host = req.get('host') || `localhost:${PORT}`;
+  return res.json({
+    success: true,
+    message: `Đã tạo thành công ${fullSchedule.length} ca học cho cả học kỳ (${weeksCount} tuần)!`,
+    userId: normId,
+    studentId: cleanId,
+    count: fullSchedule.length,
+    schedule: fullSchedule,
+    webcalUrl: `webcal://${host}/api/feed/${normId}.ics`
+  });
 });
 
 /**

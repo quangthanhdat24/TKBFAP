@@ -40,6 +40,9 @@ export default function App() {
   const [pastedHtml, setPastedHtml] = useState<string>('');
   const [syncStatusMsg, setSyncStatusMsg] = useState<string>('');
   const [selectedDateFilter, setSelectedDateFilter] = useState<string>('all');
+  const [selectedWeekFilter, setSelectedWeekFilter] = useState<string>('all');
+  const [selectedSubjectFilter, setSelectedSubjectFilter] = useState<string>('all');
+  const [isReplicating, setIsReplicating] = useState<boolean>(false);
 
   // Lấy domain hiện tại
   const origin = typeof window !== 'undefined' ? window.location.origin : 'https://fap-sync.fpt.edu.vn';
@@ -95,13 +98,45 @@ export default function App() {
         const fetchRes = await fetch(`/api/schedule/${targetId.toLowerCase()}`);
         const scheduleJson = await fetchRes.json();
         setScheduleData(scheduleJson.data);
-        setSyncStatusMsg('Đã nạp thời khóa biểu 2 tuần FPT thành công!');
+        setSyncStatusMsg('Đã nạp thời khóa biểu cả học kỳ (10 tuần, 110 ca học) thành công!');
         setTimeout(() => setSyncStatusMsg(''), 4000);
       }
     } catch (err) {
       console.error('Lỗi nạp demo:', err);
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  // Nhân bản lịch sang cả học kỳ (10 tuần hoặc 15 tuần)
+  const replicateSemesterSchedule = async (weeksCount: number = 10) => {
+    try {
+      setIsReplicating(true);
+      const res = await fetch('/api/replicate-semester', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          userId: userId || 'CE180531',
+          weeksCount,
+          startMonday: '2026-09-07'
+        })
+      });
+      const data = await res.json();
+      if (data.success) {
+        setScheduleData({
+          userId: data.userId,
+          studentId: data.studentId,
+          studentName: 'Quang Thành Đạt',
+          updatedAt: new Date().toISOString(),
+          schedule: data.schedule
+        });
+        setSyncStatusMsg(`🎉 Đã tạo thành công ${data.count} ca học cho cả học kỳ (${weeksCount} tuần)!`);
+        setTimeout(() => setSyncStatusMsg(''), 5000);
+      }
+    } catch (err) {
+      console.error('Lỗi nhân bản học kỳ:', err);
+    } finally {
+      setIsReplicating(false);
     }
   };
 
@@ -132,10 +167,38 @@ export default function App() {
   // Danh sách các ngày có lịch để filter
   const scheduleItems = scheduleData?.schedule || [];
   const uniqueDates = Array.from(new Set(scheduleItems.map(i => i.date))).sort();
+  const uniqueSubjects = Array.from(new Set(scheduleItems.map(i => i.subject))).sort();
 
-  const filteredItems = selectedDateFilter === 'all'
-    ? scheduleItems
-    : scheduleItems.filter(i => i.date === selectedDateFilter);
+  // Nhóm theo tuần (dựa trên Thứ 2 đầu tuần của mỗi ngày)
+  const getMondayOfWeek = (dateStr: string) => {
+    const d = new Date(dateStr);
+    const day = d.getDay();
+    const diff = d.getDate() - (day === 0 ? 6 : day - 1);
+    const mon = new Date(d.setDate(diff));
+    return `${mon.getFullYear()}-${String(mon.getMonth() + 1).padStart(2, '0')}-${String(mon.getDate()).padStart(2, '0')}`;
+  };
+
+  const weeksMap: Record<string, { weekNum: number; monday: string; sunday: string; count: number }> = {};
+  const uniqueMondays = (Array.from(new Set(scheduleItems.map(i => getMondayOfWeek(i.date)))) as string[]).sort();
+  uniqueMondays.forEach((monStr: string, idx: number) => {
+    const [y, m, d] = monStr.split('-').map(Number);
+    const sunDate = new Date(y, m - 1, d + 6);
+    const sunStr = `${sunDate.getFullYear()}-${String(sunDate.getMonth() + 1).padStart(2, '0')}-${String(sunDate.getDate()).padStart(2, '0')}`;
+    const count = scheduleItems.filter(i => getMondayOfWeek(i.date) === monStr).length;
+    weeksMap[monStr] = {
+      weekNum: idx + 1,
+      monday: monStr,
+      sunday: sunStr,
+      count
+    };
+  });
+
+  const filteredItems = scheduleItems.filter(i => {
+    if (selectedDateFilter !== 'all' && i.date !== selectedDateFilter) return false;
+    if (selectedWeekFilter !== 'all' && getMondayOfWeek(i.date) !== selectedWeekFilter) return false;
+    if (selectedSubjectFilter !== 'all' && i.subject !== selectedSubjectFilter) return false;
+    return true;
+  });
 
   // Sắp xếp theo ngày và slot
   const sortedItems = [...filteredItems].sort((a, b) => {
@@ -534,54 +597,166 @@ export default function App() {
         {activeTab === 'timetable' && (
           <div className="space-y-4">
             <section id="timetable-viewer" className="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-xl space-y-4">
-              <div className="flex items-center justify-between flex-wrap gap-2">
+              {/* Header & Stats */}
+              <div className="flex items-start justify-between flex-wrap gap-3 pb-3 border-b border-slate-800">
                 <div>
-                  <h2 className="text-sm font-bold text-white flex items-center gap-2">
+                  <h2 className="text-sm sm:text-base font-bold text-white flex items-center gap-2">
                     <Calendar className="w-4 h-4 text-orange-400" />
                     Thời khóa biểu đã đồng bộ
                   </h2>
-                  <p className="text-[11px] text-slate-400">
+                  <p className="text-[11px] text-slate-400 mt-0.5">
                     Sinh viên: <span className="font-mono text-orange-400 font-bold">{scheduleData?.studentId || userId}</span>
+                    {scheduleData?.studentName && ` (${scheduleData.studentName})`}
                     {scheduleData?.updatedAt && ` • Cập nhật: ${new Date(scheduleData.updatedAt).toLocaleTimeString('vi-VN')}`}
                   </p>
                 </div>
 
-                {/* Filter ngày */}
-                <select
-                  id="date-filter-select"
-                  value={selectedDateFilter}
-                  onChange={(e) => setSelectedDateFilter(e.target.value)}
-                  className="bg-slate-800 border border-slate-700 text-xs rounded-lg px-2.5 py-1.5 text-slate-200 focus:outline-none focus:border-orange-500"
-                >
-                  <option value="all">Tất cả ({scheduleItems.length} ca)</option>
-                  {uniqueDates.map(d => (
-                    <option key={d} value={d}>{d}</option>
-                  ))}
-                </select>
+                {/* Nút hành động nhanh: Nhân bản cả kỳ & Mở Apple Calendar */}
+                <div className="flex items-center gap-2 flex-wrap">
+                  <button
+                    id="btn-replicate-semester"
+                    onClick={() => replicateSemesterSchedule(10)}
+                    disabled={isReplicating}
+                    className="flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white font-bold text-xs rounded-lg shadow-md transition disabled:opacity-50"
+                  >
+                    <Sparkles className={`w-3.5 h-3.5 ${isReplicating ? 'animate-spin' : ''}`} />
+                    <span>{isReplicating ? 'Đang tạo...' : '⚡ Tạo lịch cả kỳ (10 tuần)'}</span>
+                  </button>
+
+                  <a
+                    id="btn-subscribe-apple-cal"
+                    href={webcalUrl}
+                    className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 hover:text-white text-xs font-semibold rounded-lg border border-slate-700 transition"
+                  >
+                    <Smartphone className="w-3.5 h-3.5 text-emerald-400" />
+                    <span>Lịch iPhone</span>
+                  </a>
+                </div>
+              </div>
+
+              {/* Thông báo tình trạng: Cả học kỳ hay mới 1 tuần */}
+              {scheduleItems.length > 0 && (
+                <div className="p-3 rounded-xl bg-slate-950/70 border border-slate-800 flex items-center justify-between gap-2 flex-wrap text-xs">
+                  <div className="flex items-center gap-2 text-slate-300">
+                    <span className="px-2 py-0.5 rounded-full bg-orange-500/20 text-orange-400 font-mono font-bold text-[11px]">
+                      {uniqueMondays.length} tuần học
+                    </span>
+                    <span className="text-slate-400">•</span>
+                    <span className="font-semibold text-white">{scheduleItems.length} ca học</span>
+                    <span className="text-slate-400">•</span>
+                    <span className="text-slate-300">{uniqueSubjects.length} môn: <strong className="text-orange-400">{uniqueSubjects.join(', ')}</strong></span>
+                  </div>
+
+                  {scheduleItems.length <= 15 && (
+                    <span className="text-[11px] text-amber-400 flex items-center gap-1">
+                      <span>⚠️ Hiện đang có 1 tuần. Bấm <strong>"⚡ Tạo lịch cả kỳ"</strong> để phủ kín 10 tuần!</span>
+                    </span>
+                  )}
+                </div>
+              )}
+
+              {/* Bộ lọc: Theo Tuần, Theo Môn, Theo Ngày */}
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 pt-1">
+                {/* Lọc theo tuần */}
+                <div>
+                  <label className="block text-[10px] font-semibold text-slate-400 mb-1">Lọc theo Tuần:</label>
+                  <select
+                    id="week-filter-select"
+                    value={selectedWeekFilter}
+                    onChange={(e) => setSelectedWeekFilter(e.target.value)}
+                    className="w-full bg-slate-800 border border-slate-700 text-xs rounded-lg px-2.5 py-1.5 text-slate-200 focus:outline-none focus:border-orange-500"
+                  >
+                    <option value="all">Tất cả các tuần ({uniqueMondays.length} tuần)</option>
+                    {uniqueMondays.map((monStr, idx) => {
+                      const wInfo = weeksMap[monStr] || { monday: monStr, sunday: monStr, count: 0 };
+                      return (
+                        <option key={monStr} value={monStr}>
+                          Tuần {idx + 1} ({wInfo.monday.slice(5)} - {wInfo.sunday.slice(5)}) • {wInfo.count} ca
+                        </option>
+                      );
+                    })}
+                  </select>
+                </div>
+
+                {/* Lọc theo môn */}
+                <div>
+                  <label className="block text-[10px] font-semibold text-slate-400 mb-1">Lọc theo Môn học:</label>
+                  <select
+                    id="subject-filter-select"
+                    value={selectedSubjectFilter}
+                    onChange={(e) => setSelectedSubjectFilter(e.target.value)}
+                    className="w-full bg-slate-800 border border-slate-700 text-xs rounded-lg px-2.5 py-1.5 text-slate-200 focus:outline-none focus:border-orange-500"
+                  >
+                    <option value="all">Tất cả các môn ({uniqueSubjects.length} môn)</option>
+                    {uniqueSubjects.map(subj => (
+                      <option key={subj} value={subj}>{subj}</option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* Lọc theo ngày cụ thể */}
+                <div>
+                  <label className="block text-[10px] font-semibold text-slate-400 mb-1">Lọc theo Ngày:</label>
+                  <select
+                    id="date-filter-select"
+                    value={selectedDateFilter}
+                    onChange={(e) => setSelectedDateFilter(e.target.value)}
+                    className="w-full bg-slate-800 border border-slate-700 text-xs rounded-lg px-2.5 py-1.5 text-slate-200 focus:outline-none focus:border-orange-500"
+                  >
+                    <option value="all">Tất cả các ngày ({uniqueDates.length} ngày)</option>
+                    {uniqueDates.map(d => (
+                      <option key={d} value={d}>{d}</option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+
+              {/* Thông tin số lượng hiển thị sau khi lọc */}
+              <div className="flex items-center justify-between text-xs text-slate-400 pt-1">
+                <span>Hiển thị: <strong className="text-white">{sortedItems.length}</strong> / {scheduleItems.length} ca học</span>
+                {(selectedWeekFilter !== 'all' || selectedSubjectFilter !== 'all' || selectedDateFilter !== 'all') && (
+                  <button
+                    onClick={() => {
+                      setSelectedWeekFilter('all');
+                      setSelectedSubjectFilter('all');
+                      setSelectedDateFilter('all');
+                    }}
+                    className="text-[11px] text-orange-400 hover:text-orange-300 underline"
+                  >
+                    Đặt lại tất cả bộ lọc
+                  </button>
+                )}
               </div>
 
               {sortedItems.length === 0 ? (
                 <div className="p-8 text-center bg-slate-950/60 rounded-xl border border-slate-800 space-y-3">
                   <Calendar className="w-8 h-8 text-slate-600 mx-auto" />
-                  <p className="text-xs text-slate-400">Chưa có dữ liệu lịch cho mã sinh viên này.</p>
+                  <p className="text-xs text-slate-400">Không có ca học nào phù hợp với bộ lọc hiện tại.</p>
                   <button
-                    onClick={() => seedDemoSchedule(userId)}
+                    onClick={() => {
+                      setSelectedWeekFilter('all');
+                      setSelectedSubjectFilter('all');
+                      setSelectedDateFilter('all');
+                    }}
                     className="text-xs font-bold text-orange-400 bg-orange-500/10 px-3 py-1.5 rounded-lg border border-orange-500/30"
                   >
-                    Nạp lịch demo ngay
+                    Xem tất cả lịch học
                   </button>
                 </div>
               ) : (
-                <div className="space-y-2.5 max-h-[500px] overflow-y-auto pr-1">
+                <div className="space-y-2.5 max-h-[520px] overflow-y-auto pr-1">
                   {sortedItems.map((item, index) => {
                     const slotInfo = (SLOT_CONFIG as any)[item.slot] || (SLOT_CONFIG as any)[1];
+                    const isAttended = (item.note || '').includes('attended') || (item.note || '').includes('Đã tham gia');
+                    const isOnline = (item.room || '').includes('ON') || (item.note || '').includes('Online') || (item.note || '').includes('Meet');
+
                     return (
                       <div
                         key={`${item.date}-${item.slot}-${index}`}
                         className="p-3.5 rounded-xl bg-slate-950/80 border border-slate-800/80 hover:border-slate-700 transition flex items-start justify-between gap-3"
                       >
                         <div className="space-y-1.5 flex-1">
-                          <div className="flex items-center gap-2">
+                          <div className="flex items-center gap-2 flex-wrap">
                             <span className="px-2 py-0.5 rounded-md bg-orange-500/20 text-orange-400 font-bold text-xs font-mono">
                               Slot {item.slot}
                             </span>
@@ -593,12 +768,26 @@ export default function App() {
                                 {item.group}
                               </span>
                             )}
+                            {isOnline && (
+                              <span className="text-[10px] px-1.5 py-0.5 rounded bg-blue-500/20 text-blue-400 border border-blue-500/30 font-semibold">
+                                Online
+                              </span>
+                            )}
+                            {isAttended ? (
+                              <span className="text-[10px] px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 font-semibold">
+                                Đã học
+                              </span>
+                            ) : (
+                              <span className="text-[10px] px-1.5 py-0.5 rounded bg-amber-500/15 text-amber-300 border border-amber-500/30 font-semibold">
+                                Sắp học
+                              </span>
+                            )}
                           </div>
 
                           <div className="flex items-center gap-3 text-[11px] text-slate-400 flex-wrap">
                             <span className="flex items-center gap-1 font-mono text-slate-300">
                               <Clock className="w-3 h-3 text-orange-400" />
-                              {slotInfo.startTimeStr} - {slotInfo.endTimeStr}
+                              {item.startTime || slotInfo.startTimeStr} - {item.endTime || slotInfo.endTimeStr}
                             </span>
                             <span className="flex items-center gap-1 text-slate-300">
                               <MapPin className="w-3 h-3 text-emerald-400" />
@@ -611,6 +800,12 @@ export default function App() {
                               </span>
                             )}
                           </div>
+
+                          {item.note && (
+                            <div className="text-[11px] text-slate-400 pt-0.5">
+                              {item.note}
+                            </div>
+                          )}
                         </div>
 
                         <div className="text-right shrink-0">
