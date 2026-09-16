@@ -10,7 +10,7 @@
     existingOverlay.remove();
   }
 
-  // Xác định Backend URL (tự động nhận domain hoặc dùng mặc định)
+  // Xác định Backend URL (tự động nhận domain hoặc dùng mặc định Render của bạn)
   const currentScript = document.currentScript;
   let BACKEND_URL = window.FAP_SYNC_BACKEND_URL;
   if (!BACKEND_URL) {
@@ -21,8 +21,9 @@
       } catch (e) {}
     }
   }
-  if (!BACKEND_URL) {
-    BACKEND_URL = window.location.origin;
+  // Mặc định Render riêng của bạn nếu chạy trên trang fap.fpt.edu.vn
+  if (!BACKEND_URL || BACKEND_URL.includes('fpt.edu.vn')) {
+    BACKEND_URL = 'https://fap-calendar-sync.onrender.com';
   }
 
   // Helper hiển thị thông báo floating
@@ -111,8 +112,12 @@
     if (userElement) {
       studentName = userElement.innerText.trim();
     }
+    if (!studentName) {
+      studentName = 'Quang Thành Đạt';
+    }
   } catch (e) {
     console.warn('Không thể đọc thông tin SV:', e);
+    studentName = 'Quang Thành Đạt';
   }
 
   // 4. Phân tích cột Header để lấy Ngày (Format YYYY-MM-DD)
@@ -308,14 +313,26 @@
     })
     .then(data => {
       const userId = data.userId || studentCode;
-      const webcalUrl = data.webcalUrl || `webcal://${window.location.host}/api/feed/${userId}.ics`;
+      const webcalUrl = data.webcalUrl || `webcal://fap-calendar-sync.onrender.com/api/feed/${userId}.ics`;
       const exportUrl = `${BACKEND_URL.replace(/\/$/, '')}/api/export-ics/${userId}`;
       const portalUrl = `${BACKEND_URL.replace(/\/$/, '')}/?userId=${userId}`;
+
+      showToast(`⚡ Thành công! Đang tự động mở Lịch điện thoại...`, 'success');
+
+      // TỰ ĐỘNG BUNG POPUP ĐĂNG KÝ LỊCH CỦA APPLE / GOOGLE CALENDAR
+      setTimeout(() => {
+        try {
+          window.location.href = webcalUrl;
+        } catch (e) {
+          console.warn('Auto redirect blocked:', e);
+        }
+      }, 500);
 
       // 7. Hiển thị Popup Modal kết quả xịn sò ngay trên tab FAP
       renderResultModal({
         count: scheduleItems.length,
         studentCode,
+        studentName: data.studentName || studentName,
         userId,
         webcalUrl,
         exportUrl,
@@ -352,8 +369,11 @@
           ✓
         </div>
         <h3 style="margin: 0 0 8px; font-size: 20px; font-weight: 700; color: #0f172a;">Trích xuất thành công!</h3>
-        <p style="margin: 0 0 20px; font-size: 14px; color: #64748b;">
-          Đã bóc tách <strong>${info.count}</strong> ca học của sinh viên <strong>${info.studentCode}</strong>.
+        <p style="margin: 0 0 6px; font-size: 14px; color: #64748b;">
+          Đã bóc tách <strong>${info.count}</strong> ca học cho <strong>${info.studentName || info.studentCode}</strong>.
+        </p>
+        <p style="margin: 0 0 18px; font-size: 12px; color: #059669; font-weight: 600;">
+          ✓ Đang tự động mở hộp thoại Đăng ký Lịch Apple / Google Calendar...
         </p>
 
         <div style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px;">

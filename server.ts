@@ -122,7 +122,8 @@ function buildICalendarFeed(studentInfo: any, items: any[]) {
   lines.push('PRODID:-//FPT University//FAP Schedule Sync//VI');
   lines.push('CALSCALE:GREGORIAN');
   lines.push('METHOD:PUBLISH');
-  lines.push(`X-WR-CALNAME:Lịch học FPT (${studentInfo.studentId || 'FAP'})`);
+  const calDisplayName = studentInfo.studentName ? `Lịch FPT - ${studentInfo.studentName}` : `Lịch học FPT (${studentInfo.studentId || 'FAP'})`;
+  lines.push(`X-WR-CALNAME:${calDisplayName}`);
   lines.push('X-WR-TIMEZONE:Asia/Ho_Chi_Minh');
   lines.push(`X-WR-CALDESC:Thời khóa biểu Đại học FPT tự động đồng bộ cho sinh viên ${studentInfo.studentName || studentInfo.studentId || ''}`);
 
