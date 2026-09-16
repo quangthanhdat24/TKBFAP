@@ -1,418 +1,517 @@
 {
-  "demo": {
-    "userId": "demo",
-    "studentId": "demo",
-    "studentName": "Sinh viên FPT (Demo)",
-    "updatedAt": "2026-09-16T08:59:39.182Z",
+  "datqtce180531": {
+    "userId": "datqtce180531",
+    "studentId": "DatQTCE180531",
+    "studentName": "Quang Thành Đạt",
+    "updatedAt": "2026-09-16T10:15:00.000Z",
     "schedule": [
       {
         "date": "2026-09-14",
         "slot": 1,
-        "subject": "SWP391",
-        "room": "AL-L502",
-        "teacher": "SonNT5",
-        "group": "SE1701"
+        "subject": "EXE101",
+        "room": "R.A702",
+        "teacher": "Giảng viên EXE101",
+        "group": "CE1805",
+        "note": "EduNext - Đã tham gia (attended)",
+        "startTime": "07:00",
+        "endTime": "09:15"
       },
       {
         "date": "2026-09-14",
         "slot": 3,
-        "subject": "PRN212",
-        "room": "BE-304",
-        "teacher": "HaiNM1",
-        "group": "SE1701"
+        "subject": "ANR402",
+        "room": "R.A407",
+        "teacher": "Giảng viên ANR402",
+        "group": "CE1805",
+        "note": "Đã tham gia (attended)",
+        "startTime": "13:00",
+        "endTime": "15:15"
+      },
+      {
+        "date": "2026-09-14",
+        "slot": 4,
+        "subject": "SDP201",
+        "room": "R.A407",
+        "teacher": "Giảng viên SDP201",
+        "group": "CE1805",
+        "note": "Đã tham gia (attended)",
+        "startTime": "15:30",
+        "endTime": "17:45"
       },
       {
         "date": "2026-09-15",
-        "slot": 2,
-        "subject": "SWE201c",
-        "room": "DE-201",
-        "teacher": "TuanVM",
-        "group": "SE1701"
+        "slot": 3,
+        "subject": "ANR402",
+        "room": "R.A405",
+        "teacher": "Giảng viên ANR402",
+        "group": "CE1805",
+        "note": "Đã tham gia (attended)",
+        "startTime": "13:00",
+        "endTime": "15:15"
       },
       {
         "date": "2026-09-15",
         "slot": 4,
-        "subject": "MLN122",
-        "room": "BETA-102",
-        "teacher": "HuongLT",
-        "group": "SE1701"
+        "subject": "VNC104",
+        "room": "R.A405",
+        "teacher": "Giảng viên VNC104",
+        "group": "CE1805",
+        "note": "EduNext - Đã tham gia (attended)",
+        "startTime": "15:30",
+        "endTime": "17:45"
       },
       {
         "date": "2026-09-16",
-        "slot": 1,
-        "subject": "SWP391",
-        "room": "AL-L502",
-        "teacher": "SonNT5",
-        "group": "SE1701"
+        "slot": 2,
+        "subject": "EXE101",
+        "room": "R.A708",
+        "teacher": "Giảng viên EXE101",
+        "group": "CE1805",
+        "note": "EduNext - Đã tham gia (attended)",
+        "startTime": "09:30",
+        "endTime": "11:45"
       },
       {
         "date": "2026-09-16",
         "slot": 3,
-        "subject": "PRN212",
-        "room": "BE-304",
-        "teacher": "HaiNM1",
-        "group": "SE1701"
+        "subject": "SDP201",
+        "room": "R.A301",
+        "teacher": "Giảng viên SDP201",
+        "group": "CE1805",
+        "note": "Đã tham gia (attended)",
+        "startTime": "13:00",
+        "endTime": "15:15"
+      },
+      {
+        "date": "2026-09-16",
+        "slot": 4,
+        "subject": "ANR402",
+        "room": "R.A407",
+        "teacher": "Giảng viên ANR402",
+        "group": "CE1805",
+        "note": "Sắp diễn ra (Not yet)",
+        "startTime": "15:30",
+        "endTime": "17:45"
       },
       {
         "date": "2026-09-17",
-        "slot": 2,
-        "subject": "SWE201c",
-        "room": "DE-201",
-        "teacher": "TuanVM",
-        "group": "SE1701"
+        "slot": 3,
+        "subject": "VNC104",
+        "room": "R.A405",
+        "teacher": "Giảng viên VNC104",
+        "group": "CE1805",
+        "note": "Meet URL - EduNext - Online (Not yet)",
+        "startTime": "13:00",
+        "endTime": "15:15"
       },
       {
         "date": "2026-09-17",
         "slot": 4,
-        "subject": "MLN122",
-        "room": "BETA-102",
-        "teacher": "HuongLT",
-        "group": "SE1701"
+        "subject": "ANR402",
+        "room": "R.A405",
+        "teacher": "Giảng viên ANR402",
+        "group": "CE1805",
+        "note": "Meet URL (Not yet)",
+        "startTime": "15:30",
+        "endTime": "17:45"
       },
       {
         "date": "2026-09-18",
-        "slot": 1,
-        "subject": "SWP391",
-        "room": "AL-L502",
-        "teacher": "SonNT5",
-        "group": "SE1701"
-      },
-      {
-        "date": "2026-09-18",
-        "slot": 3,
-        "subject": "PRN212",
-        "room": "BE-304",
-        "teacher": "HaiNM1",
-        "group": "SE1701"
-      },
-      {
-        "date": "2026-09-19",
         "slot": 2,
-        "subject": "SWE201c",
-        "room": "DE-201",
-        "teacher": "TuanVM",
-        "group": "SE1701"
-      },
-      {
-        "date": "2026-09-19",
-        "slot": 4,
-        "subject": "MLN122",
-        "room": "BETA-102",
-        "teacher": "HuongLT",
-        "group": "SE1701"
-      },
-      {
-        "date": "2026-09-21",
-        "slot": 1,
-        "subject": "SWP391",
-        "room": "AL-L502",
-        "teacher": "SonNT5",
-        "group": "SE1701"
-      },
-      {
-        "date": "2026-09-21",
-        "slot": 3,
-        "subject": "PRN212",
-        "room": "BE-304",
-        "teacher": "HaiNM1",
-        "group": "SE1701"
-      },
-      {
-        "date": "2026-09-22",
-        "slot": 2,
-        "subject": "SWE201c",
-        "room": "DE-201",
-        "teacher": "TuanVM",
-        "group": "SE1701"
-      },
-      {
-        "date": "2026-09-22",
-        "slot": 4,
-        "subject": "MLN122",
-        "room": "BETA-102",
-        "teacher": "HuongLT",
-        "group": "SE1701"
-      },
-      {
-        "date": "2026-09-23",
-        "slot": 1,
-        "subject": "SWP391",
-        "room": "AL-L502",
-        "teacher": "SonNT5",
-        "group": "SE1701"
-      },
-      {
-        "date": "2026-09-23",
-        "slot": 3,
-        "subject": "PRN212",
-        "room": "BE-304",
-        "teacher": "HaiNM1",
-        "group": "SE1701"
-      },
-      {
-        "date": "2026-09-24",
-        "slot": 2,
-        "subject": "SWE201c",
-        "room": "DE-201",
-        "teacher": "TuanVM",
-        "group": "SE1701"
-      },
-      {
-        "date": "2026-09-24",
-        "slot": 4,
-        "subject": "MLN122",
-        "room": "BETA-102",
-        "teacher": "HuongLT",
-        "group": "SE1701"
-      },
-      {
-        "date": "2026-09-25",
-        "slot": 1,
-        "subject": "SWP391",
-        "room": "AL-L502",
-        "teacher": "SonNT5",
-        "group": "SE1701"
-      },
-      {
-        "date": "2026-09-25",
-        "slot": 3,
-        "subject": "PRN212",
-        "room": "BE-304",
-        "teacher": "HaiNM1",
-        "group": "SE1701"
-      },
-      {
-        "date": "2026-09-26",
-        "slot": 2,
-        "subject": "SWE201c",
-        "room": "DE-201",
-        "teacher": "TuanVM",
-        "group": "SE1701"
-      },
-      {
-        "date": "2026-09-26",
-        "slot": 4,
-        "subject": "MLN122",
-        "room": "BETA-102",
-        "teacher": "HuongLT",
-        "group": "SE1701"
+        "subject": "VNC104",
+        "room": "R.ON01",
+        "teacher": "Giảng viên VNC104",
+        "group": "CE1805",
+        "note": "Meet URL - EduNext - Online (Not yet)",
+        "startTime": "09:30",
+        "endTime": "11:45"
       }
     ]
   },
-  "se181234": {
-    "userId": "se181234",
-    "studentId": "SE181234",
-    "studentName": "Nguyen Van A",
-    "updatedAt": "2026-09-16T08:54:53.946Z",
+  "ce180531": {
+    "userId": "ce180531",
+    "studentId": "CE180531",
+    "studentName": "Quang Thành Đạt",
+    "updatedAt": "2026-09-16T10:15:00.000Z",
     "schedule": [
       {
-        "date": "2026-09-22",
+        "date": "2026-09-14",
         "slot": 1,
-        "subject": "SWP391",
-        "room": "AL-L502",
-        "teacher": "SonNT5",
-        "group": "SE1801",
-        "note": ""
+        "subject": "EXE101",
+        "room": "R.A702",
+        "teacher": "Giảng viên EXE101",
+        "group": "CE1805",
+        "note": "EduNext - Đã tham gia (attended)",
+        "startTime": "07:00",
+        "endTime": "09:15"
+      },
+      {
+        "date": "2026-09-14",
+        "slot": 3,
+        "subject": "ANR402",
+        "room": "R.A407",
+        "teacher": "Giảng viên ANR402",
+        "group": "CE1805",
+        "note": "Đã tham gia (attended)",
+        "startTime": "13:00",
+        "endTime": "15:15"
+      },
+      {
+        "date": "2026-09-14",
+        "slot": 4,
+        "subject": "SDP201",
+        "room": "R.A407",
+        "teacher": "Giảng viên SDP201",
+        "group": "CE1805",
+        "note": "Đã tham gia (attended)",
+        "startTime": "15:30",
+        "endTime": "17:45"
+      },
+      {
+        "date": "2026-09-15",
+        "slot": 3,
+        "subject": "ANR402",
+        "room": "R.A405",
+        "teacher": "Giảng viên ANR402",
+        "group": "CE1805",
+        "note": "Đã tham gia (attended)",
+        "startTime": "13:00",
+        "endTime": "15:15"
+      },
+      {
+        "date": "2026-09-15",
+        "slot": 4,
+        "subject": "VNC104",
+        "room": "R.A405",
+        "teacher": "Giảng viên VNC104",
+        "group": "CE1805",
+        "note": "EduNext - Đã tham gia (attended)",
+        "startTime": "15:30",
+        "endTime": "17:45"
+      },
+      {
+        "date": "2026-09-16",
+        "slot": 2,
+        "subject": "EXE101",
+        "room": "R.A708",
+        "teacher": "Giảng viên EXE101",
+        "group": "CE1805",
+        "note": "EduNext - Đã tham gia (attended)",
+        "startTime": "09:30",
+        "endTime": "11:45"
+      },
+      {
+        "date": "2026-09-16",
+        "slot": 3,
+        "subject": "SDP201",
+        "room": "R.A301",
+        "teacher": "Giảng viên SDP201",
+        "group": "CE1805",
+        "note": "Đã tham gia (attended)",
+        "startTime": "13:00",
+        "endTime": "15:15"
+      },
+      {
+        "date": "2026-09-16",
+        "slot": 4,
+        "subject": "ANR402",
+        "room": "R.A407",
+        "teacher": "Giảng viên ANR402",
+        "group": "CE1805",
+        "note": "Sắp diễn ra (Not yet)",
+        "startTime": "15:30",
+        "endTime": "17:45"
+      },
+      {
+        "date": "2026-09-17",
+        "slot": 3,
+        "subject": "VNC104",
+        "room": "R.A405",
+        "teacher": "Giảng viên VNC104",
+        "group": "CE1805",
+        "note": "Meet URL - EduNext - Online (Not yet)",
+        "startTime": "13:00",
+        "endTime": "15:15"
+      },
+      {
+        "date": "2026-09-17",
+        "slot": 4,
+        "subject": "ANR402",
+        "room": "R.A405",
+        "teacher": "Giảng viên ANR402",
+        "group": "CE1805",
+        "note": "Meet URL (Not yet)",
+        "startTime": "15:30",
+        "endTime": "17:45"
+      },
+      {
+        "date": "2026-09-18",
+        "slot": 2,
+        "subject": "VNC104",
+        "room": "R.ON01",
+        "teacher": "Giảng viên VNC104",
+        "group": "CE1805",
+        "note": "Meet URL - EduNext - Online (Not yet)",
+        "startTime": "09:30",
+        "endTime": "11:45"
+      }
+    ]
+  },
+  "demo": {
+    "userId": "demo",
+    "studentId": "CE180531",
+    "studentName": "Quang Thành Đạt",
+    "updatedAt": "2026-09-16T10:15:00.000Z",
+    "schedule": [
+      {
+        "date": "2026-09-14",
+        "slot": 1,
+        "subject": "EXE101",
+        "room": "R.A702",
+        "teacher": "Giảng viên EXE101",
+        "group": "CE1805",
+        "note": "EduNext - Đã tham gia (attended)",
+        "startTime": "07:00",
+        "endTime": "09:15"
+      },
+      {
+        "date": "2026-09-14",
+        "slot": 3,
+        "subject": "ANR402",
+        "room": "R.A407",
+        "teacher": "Giảng viên ANR402",
+        "group": "CE1805",
+        "note": "Đã tham gia (attended)",
+        "startTime": "13:00",
+        "endTime": "15:15"
+      },
+      {
+        "date": "2026-09-14",
+        "slot": 4,
+        "subject": "SDP201",
+        "room": "R.A407",
+        "teacher": "Giảng viên SDP201",
+        "group": "CE1805",
+        "note": "Đã tham gia (attended)",
+        "startTime": "15:30",
+        "endTime": "17:45"
+      },
+      {
+        "date": "2026-09-15",
+        "slot": 3,
+        "subject": "ANR402",
+        "room": "R.A405",
+        "teacher": "Giảng viên ANR402",
+        "group": "CE1805",
+        "note": "Đã tham gia (attended)",
+        "startTime": "13:00",
+        "endTime": "15:15"
+      },
+      {
+        "date": "2026-09-15",
+        "slot": 4,
+        "subject": "VNC104",
+        "room": "R.A405",
+        "teacher": "Giảng viên VNC104",
+        "group": "CE1805",
+        "note": "EduNext - Đã tham gia (attended)",
+        "startTime": "15:30",
+        "endTime": "17:45"
+      },
+      {
+        "date": "2026-09-16",
+        "slot": 2,
+        "subject": "EXE101",
+        "room": "R.A708",
+        "teacher": "Giảng viên EXE101",
+        "group": "CE1805",
+        "note": "EduNext - Đã tham gia (attended)",
+        "startTime": "09:30",
+        "endTime": "11:45"
+      },
+      {
+        "date": "2026-09-16",
+        "slot": 3,
+        "subject": "SDP201",
+        "room": "R.A301",
+        "teacher": "Giảng viên SDP201",
+        "group": "CE1805",
+        "note": "Đã tham gia (attended)",
+        "startTime": "13:00",
+        "endTime": "15:15"
+      },
+      {
+        "date": "2026-09-16",
+        "slot": 4,
+        "subject": "ANR402",
+        "room": "R.A407",
+        "teacher": "Giảng viên ANR402",
+        "group": "CE1805",
+        "note": "Sắp diễn ra (Not yet)",
+        "startTime": "15:30",
+        "endTime": "17:45"
+      },
+      {
+        "date": "2026-09-17",
+        "slot": 3,
+        "subject": "VNC104",
+        "room": "R.A405",
+        "teacher": "Giảng viên VNC104",
+        "group": "CE1805",
+        "note": "Meet URL - EduNext - Online (Not yet)",
+        "startTime": "13:00",
+        "endTime": "15:15"
+      },
+      {
+        "date": "2026-09-17",
+        "slot": 4,
+        "subject": "ANR402",
+        "room": "R.A405",
+        "teacher": "Giảng viên ANR402",
+        "group": "CE1805",
+        "note": "Meet URL (Not yet)",
+        "startTime": "15:30",
+        "endTime": "17:45"
+      },
+      {
+        "date": "2026-09-18",
+        "slot": 2,
+        "subject": "VNC104",
+        "room": "R.ON01",
+        "teacher": "Giảng viên VNC104",
+        "group": "CE1805",
+        "note": "Meet URL - EduNext - Online (Not yet)",
+        "startTime": "09:30",
+        "endTime": "11:45"
       }
     ]
   },
   "se170001": {
     "userId": "se170001",
-    "studentId": "SE170001",
+    "studentId": "CE180531",
     "studentName": "Quang Thành Đạt",
-    "updatedAt": "2026-09-16T10:00:36.248Z",
+    "updatedAt": "2026-09-16T10:15:00.000Z",
     "schedule": [
       {
         "date": "2026-09-14",
         "slot": 1,
-        "subject": "SWP391",
-        "room": "AL-L502",
-        "teacher": "SonNT5",
-        "group": "SE1701"
+        "subject": "EXE101",
+        "room": "R.A702",
+        "teacher": "Giảng viên EXE101",
+        "group": "CE1805",
+        "note": "EduNext - Đã tham gia (attended)",
+        "startTime": "07:00",
+        "endTime": "09:15"
       },
       {
         "date": "2026-09-14",
         "slot": 3,
-        "subject": "PRN212",
-        "room": "BE-304",
-        "teacher": "HaiNM1",
-        "group": "SE1701"
+        "subject": "ANR402",
+        "room": "R.A407",
+        "teacher": "Giảng viên ANR402",
+        "group": "CE1805",
+        "note": "Đã tham gia (attended)",
+        "startTime": "13:00",
+        "endTime": "15:15"
+      },
+      {
+        "date": "2026-09-14",
+        "slot": 4,
+        "subject": "SDP201",
+        "room": "R.A407",
+        "teacher": "Giảng viên SDP201",
+        "group": "CE1805",
+        "note": "Đã tham gia (attended)",
+        "startTime": "15:30",
+        "endTime": "17:45"
       },
       {
         "date": "2026-09-15",
-        "slot": 2,
-        "subject": "SWE201c",
-        "room": "DE-201",
-        "teacher": "TuanVM",
-        "group": "SE1701"
+        "slot": 3,
+        "subject": "ANR402",
+        "room": "R.A405",
+        "teacher": "Giảng viên ANR402",
+        "group": "CE1805",
+        "note": "Đã tham gia (attended)",
+        "startTime": "13:00",
+        "endTime": "15:15"
       },
       {
         "date": "2026-09-15",
         "slot": 4,
-        "subject": "MLN122",
-        "room": "BETA-102",
-        "teacher": "HuongLT",
-        "group": "SE1701"
+        "subject": "VNC104",
+        "room": "R.A405",
+        "teacher": "Giảng viên VNC104",
+        "group": "CE1805",
+        "note": "EduNext - Đã tham gia (attended)",
+        "startTime": "15:30",
+        "endTime": "17:45"
       },
       {
         "date": "2026-09-16",
-        "slot": 1,
-        "subject": "SWP391",
-        "room": "AL-L502",
-        "teacher": "SonNT5",
-        "group": "SE1701"
+        "slot": 2,
+        "subject": "EXE101",
+        "room": "R.A708",
+        "teacher": "Giảng viên EXE101",
+        "group": "CE1805",
+        "note": "EduNext - Đã tham gia (attended)",
+        "startTime": "09:30",
+        "endTime": "11:45"
       },
       {
         "date": "2026-09-16",
         "slot": 3,
-        "subject": "PRN212",
-        "room": "BE-304",
-        "teacher": "HaiNM1",
-        "group": "SE1701"
+        "subject": "SDP201",
+        "room": "R.A301",
+        "teacher": "Giảng viên SDP201",
+        "group": "CE1805",
+        "note": "Đã tham gia (attended)",
+        "startTime": "13:00",
+        "endTime": "15:15"
+      },
+      {
+        "date": "2026-09-16",
+        "slot": 4,
+        "subject": "ANR402",
+        "room": "R.A407",
+        "teacher": "Giảng viên ANR402",
+        "group": "CE1805",
+        "note": "Sắp diễn ra (Not yet)",
+        "startTime": "15:30",
+        "endTime": "17:45"
       },
       {
         "date": "2026-09-17",
-        "slot": 2,
-        "subject": "SWE201c",
-        "room": "DE-201",
-        "teacher": "TuanVM",
-        "group": "SE1701"
+        "slot": 3,
+        "subject": "VNC104",
+        "room": "R.A405",
+        "teacher": "Giảng viên VNC104",
+        "group": "CE1805",
+        "note": "Meet URL - EduNext - Online (Not yet)",
+        "startTime": "13:00",
+        "endTime": "15:15"
       },
       {
         "date": "2026-09-17",
         "slot": 4,
-        "subject": "MLN122",
-        "room": "BETA-102",
-        "teacher": "HuongLT",
-        "group": "SE1701"
+        "subject": "ANR402",
+        "room": "R.A405",
+        "teacher": "Giảng viên ANR402",
+        "group": "CE1805",
+        "note": "Meet URL (Not yet)",
+        "startTime": "15:30",
+        "endTime": "17:45"
       },
       {
         "date": "2026-09-18",
-        "slot": 1,
-        "subject": "SWP391",
-        "room": "AL-L502",
-        "teacher": "SonNT5",
-        "group": "SE1701"
-      },
-      {
-        "date": "2026-09-18",
-        "slot": 3,
-        "subject": "PRN212",
-        "room": "BE-304",
-        "teacher": "HaiNM1",
-        "group": "SE1701"
-      },
-      {
-        "date": "2026-09-19",
         "slot": 2,
-        "subject": "SWE201c",
-        "room": "DE-201",
-        "teacher": "TuanVM",
-        "group": "SE1701"
-      },
-      {
-        "date": "2026-09-19",
-        "slot": 4,
-        "subject": "MLN122",
-        "room": "BETA-102",
-        "teacher": "HuongLT",
-        "group": "SE1701"
-      },
-      {
-        "date": "2026-09-21",
-        "slot": 1,
-        "subject": "SWP391",
-        "room": "AL-L502",
-        "teacher": "SonNT5",
-        "group": "SE1701"
-      },
-      {
-        "date": "2026-09-21",
-        "slot": 3,
-        "subject": "PRN212",
-        "room": "BE-304",
-        "teacher": "HaiNM1",
-        "group": "SE1701"
-      },
-      {
-        "date": "2026-09-22",
-        "slot": 2,
-        "subject": "SWE201c",
-        "room": "DE-201",
-        "teacher": "TuanVM",
-        "group": "SE1701"
-      },
-      {
-        "date": "2026-09-22",
-        "slot": 4,
-        "subject": "MLN122",
-        "room": "BETA-102",
-        "teacher": "HuongLT",
-        "group": "SE1701"
-      },
-      {
-        "date": "2026-09-23",
-        "slot": 1,
-        "subject": "SWP391",
-        "room": "AL-L502",
-        "teacher": "SonNT5",
-        "group": "SE1701"
-      },
-      {
-        "date": "2026-09-23",
-        "slot": 3,
-        "subject": "PRN212",
-        "room": "BE-304",
-        "teacher": "HaiNM1",
-        "group": "SE1701"
-      },
-      {
-        "date": "2026-09-24",
-        "slot": 2,
-        "subject": "SWE201c",
-        "room": "DE-201",
-        "teacher": "TuanVM",
-        "group": "SE1701"
-      },
-      {
-        "date": "2026-09-24",
-        "slot": 4,
-        "subject": "MLN122",
-        "room": "BETA-102",
-        "teacher": "HuongLT",
-        "group": "SE1701"
-      },
-      {
-        "date": "2026-09-25",
-        "slot": 1,
-        "subject": "SWP391",
-        "room": "AL-L502",
-        "teacher": "SonNT5",
-        "group": "SE1701"
-      },
-      {
-        "date": "2026-09-25",
-        "slot": 3,
-        "subject": "PRN212",
-        "room": "BE-304",
-        "teacher": "HaiNM1",
-        "group": "SE1701"
-      },
-      {
-        "date": "2026-09-26",
-        "slot": 2,
-        "subject": "SWE201c",
-        "room": "DE-201",
-        "teacher": "TuanVM",
-        "group": "SE1701"
-      },
-      {
-        "date": "2026-09-26",
-        "slot": 4,
-        "subject": "MLN122",
-        "room": "BETA-102",
-        "teacher": "HuongLT",
-        "group": "SE1701"
+        "subject": "VNC104",
+        "room": "R.ON01",
+        "teacher": "Giảng viên VNC104",
+        "group": "CE1805",
+        "note": "Meet URL - EduNext - Online (Not yet)",
+        "startTime": "09:30",
+        "endTime": "11:45"
       }
     ]
   }

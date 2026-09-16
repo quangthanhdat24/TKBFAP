@@ -28,7 +28,7 @@ import { SLOT_CONFIG } from './slotConfig.js';
 import { ScheduleItem, UserScheduleData } from './types.js';
 
 export default function App() {
-  const [userId, setUserId] = useState<string>('demo');
+  const [userId, setUserId] = useState<string>('ce180531');
   const [scheduleData, setScheduleData] = useState<UserScheduleData | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [activeTab, setActiveTab] = useState<'sync' | 'timetable' | 'auto1touch' | 'simulator' | 'deploy'>('sync');

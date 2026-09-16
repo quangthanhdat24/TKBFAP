@@ -19,32 +19,46 @@ export const SLOT_CONFIG = {
     label: 'Slot 2 (09:30 - 11:45)'
   },
   3: {
-    start: [12, 30],
-    end: [14, 45],
-    startTimeStr: '12:30',
-    endTimeStr: '14:45',
-    label: 'Slot 3 (12:30 - 14:45)'
+    start: [13, 0],
+    end: [15, 15],
+    startTimeStr: '13:00',
+    endTimeStr: '15:15',
+    label: 'Slot 3 (13:00 - 15:15)'
   },
   4: {
-    start: [15, 0],
-    end: [17, 15],
-    startTimeStr: '15:00',
-    endTimeStr: '17:15',
-    label: 'Slot 4 (15:00 - 17:15)'
+    start: [15, 30],
+    end: [17, 45],
+    startTimeStr: '15:30',
+    endTimeStr: '17:45',
+    label: 'Slot 4 (15:30 - 17:45)'
   },
   5: {
-    start: [17, 30],
-    end: [19, 45],
-    startTimeStr: '17:30',
-    endTimeStr: '19:45',
-    label: 'Slot 5 (17:30 - 19:45)'
+    start: [18, 0],
+    end: [20, 15],
+    startTimeStr: '18:00',
+    endTimeStr: '20:15',
+    label: 'Slot 5 (18:00 - 20:15)'
   },
   6: {
-    start: [20, 0],
-    end: [22, 15],
-    startTimeStr: '20:00',
-    endTimeStr: '22:15',
-    label: 'Slot 6 (20:00 - 22:15)'
+    start: [20, 30],
+    end: [22, 45],
+    startTimeStr: '20:30',
+    endTimeStr: '22:45',
+    label: 'Slot 6 (20:30 - 22:45)'
+  },
+  7: {
+    start: [7, 0],
+    end: [9, 15],
+    startTimeStr: '07:00',
+    endTimeStr: '09:15',
+    label: 'Slot 7 (07:00 - 09:15)'
+  },
+  8: {
+    start: [9, 30],
+    end: [11, 45],
+    startTimeStr: '09:30',
+    endTimeStr: '11:45',
+    label: 'Slot 8 (09:30 - 11:45)'
   }
 };
 

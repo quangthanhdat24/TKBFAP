@@ -27,11 +27,17 @@
     let studentName = 'Quang Thành Đạt';
     try {
       const bodyText = document.body.innerText || document.body.textContent || '';
-      // Tìm mã sinh viên dạng HE171234, SE160000, QE180000, HS170000, v.v.
-      const codeMatches = bodyText.match(/\b([A-Z]{2}\d{5,7})\b/g);
-      if (codeMatches && codeMatches.length > 0) {
-        // Lấy mã đầu tiên không phải mã môn
-        detectedStudentCode = codeMatches[0].toUpperCase();
+      // Tìm dòng đặc trưng: "Activities for DatQTCE180531 (Quang Thành Đạt)"
+      const actMatch = bodyText.match(/Activities for\s+([A-Za-z0-9_]+)\s*\(([^)]+)\)/i);
+      if (actMatch) {
+        detectedStudentCode = actMatch[1].trim().toUpperCase();
+        studentName = actMatch[2].trim();
+      } else {
+        // Tìm mã sinh viên dạng CE180531, HE171234, SE160000, QE180000...
+        const codeMatches = bodyText.match(/\b([A-Z]{2,8}\d{5,7})\b/g);
+        if (codeMatches && codeMatches.length > 0) {
+          detectedStudentCode = codeMatches[0].toUpperCase();
+        }
       }
       const userEl = document.querySelector('#ctl00_lblUser, .user-name, #lblUser, .dropdown-toggle');
       if (userEl && userEl.innerText.trim()) {
@@ -40,9 +46,9 @@
     } catch (e) {}
 
     // Xác nhận Mã số sinh viên với người dùng
-    const defaultId = detectedStudentCode || 'SE180000';
+    const defaultId = detectedStudentCode || 'CE180531';
     const promptCode = prompt(
-      '🎓 BƯỚC 1: Xác nhận Mã số sinh viên của bạn để tạo link Lịch riêng:\n(Ví dụ: SE181234, HE170000, QE180000...)',
+      '🎓 BƯỚC 1: Xác nhận Mã số sinh viên của bạn để tạo link Lịch riêng:\n(Ví dụ: CE180531, DatQTCE180531...)',
       defaultId
     );
 
@@ -99,33 +105,30 @@
       return;
     }
 
-    // 5. Phân tích Header để lấy ngày của 7 thứ trong tuần
+    // 5. Phân tích Header & Tất cả các hàng để lấy ngày của 7 cột thứ trong tuần
     const rows = Array.from(scheduleTable.querySelectorAll('tr'));
     if (rows.length < 2) {
       alert('❌ Bảng thời khóa biểu không đủ dữ liệu để bóc tách!');
       return;
     }
 
-    let headerRow = rows[0];
-    let headerCells = Array.from(headerRow.querySelectorAll('th, td'));
-    if (headerCells.length <= 2 && rows.length > 1) {
-      headerRow = rows[1];
-      headerCells = Array.from(headerRow.querySelectorAll('th, td'));
-    }
-
     const columnDateMap = {};
     const currentYear = new Date().getFullYear();
 
-    headerCells.forEach((cell, idx) => {
-      const txt = (cell.innerText || cell.textContent || '').trim();
-      const matchFull = txt.match(/(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})/);
-      const matchShort = txt.match(/(\d{1,2})[\/\-](\d{1,2})/);
+    // Quét 3 hàng đầu của bảng để tìm ngày DD/MM hoặc DD/MM/YYYY của từng cột
+    rows.slice(0, 3).forEach(r => {
+      const cells = Array.from(r.querySelectorAll('th, td'));
+      cells.forEach((cell, idx) => {
+        const txt = (cell.innerText || cell.textContent || '').trim();
+        const matchFull = txt.match(/(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})/);
+        const matchShort = txt.match(/(\d{1,2})[\/\-](\d{1,2})/);
 
-      if (matchFull) {
-        columnDateMap[idx] = `${matchFull[3]}-${matchFull[2].padStart(2, '0')}-${matchFull[1].padStart(2, '0')}`;
-      } else if (matchShort) {
-        columnDateMap[idx] = `${currentYear}-${matchShort[2].padStart(2, '0')}-${matchShort[1].padStart(2, '0')}`;
-      }
+        if (matchFull) {
+          columnDateMap[idx] = `${matchFull[3]}-${matchFull[2].padStart(2, '0')}-${matchFull[1].padStart(2, '0')}`;
+        } else if (matchShort && !columnDateMap[idx]) {
+          columnDateMap[idx] = `${currentYear}-${matchShort[2].padStart(2, '0')}-${matchShort[1].padStart(2, '0')}`;
+        }
+      });
     });
 
     // Fallback ngày nếu Header chỉ ghi "Thứ 2, Thứ 3..." mà không ghi ngày
@@ -148,7 +151,7 @@
       }
     }
 
-    // 6. Bóc tách từng môn học trong từng Ca (Slot)
+    // 6. Bóc tách từng môn học trong từng Ca (Hỗ trợ Slot 1 đến 8)
     const scheduleItems = [];
 
     rows.forEach((row, rIdx) => {
@@ -161,15 +164,15 @@
       if (slotMatch) {
         slotNum = parseInt(slotMatch[1], 10);
       } else {
-        const numMatch = firstTxt.match(/\b([1-6])\b/);
+        const numMatch = firstTxt.match(/\b([1-8])\b/);
         if (numMatch) {
           slotNum = parseInt(numMatch[1], 10);
-        } else if (rIdx >= 1 && rIdx <= 6) {
+        } else if (rIdx >= 1 && rIdx <= 8) {
           slotNum = rIdx;
         }
       }
 
-      if (!slotNum || slotNum < 1 || slotNum > 6) return;
+      if (!slotNum || slotNum < 1 || slotNum > 8) return;
 
       cells.forEach((cell, cIdx) => {
         if (cIdx === 0) return; // Cột số slot
@@ -181,32 +184,33 @@
         const targetDate = columnDateMap[cIdx] || columnDateMap[cIdx - 1];
         if (!targetDate) return;
 
-        // Lọc các dòng không cần thiết
-        const lines = cellText
-          .split('\n')
-          .map(l => l.trim())
-          .filter(l => l.length > 0 && 
-                       !l.toLowerCase().includes('attended') && 
-                       !l.toLowerCase().includes('not yet') &&
-                       !l.toLowerCase().includes('vắng') &&
-                       !l.toLowerCase().includes('có mặt'));
-
-        if (lines.length === 0) return;
-
-        // Tìm mã môn học: 3 chữ cái + 3 số (vd: SWP391, PRN212, LAB211, MAS291...)
+        // Tìm mã môn học: ví dụ EXE101, ANR402, SDP201, VNC104, SWP391...
         let subject = '';
         const subjectMatch = cellText.match(/\b([A-Z]{3}\d{3}[A-Za-z]?)\b/);
         if (subjectMatch) {
           subject = subjectMatch[1];
         } else {
-          subject = lines[0].replace(/\bat\b.*$/i, '').replace(/\(.*\)/g, '').trim();
+          const lines = cellText.split('\n').map(l => l.trim()).filter(Boolean);
+          if (lines.length > 0) {
+            subject = lines[0].replace(/\bat\b.*$/i, '').replace(/\(.*\)/g, '').trim();
+          }
         }
+        if (!subject) return;
 
-        // Tìm phòng học: ví dụ AL-L502, BE-304, BETA-201...
+        // Tìm phòng học: hỗ trợ R.A702, R.A407, R.ON01, AL-L502, BE-304...
         let room = 'Phòng FPT';
-        const roomMatch = cellText.match(/(?:at|phòng|room)?\s*([A-Z]{1,5}[-_]?[A-Z0-9]{2,6})/i);
+        const roomMatch = cellText.match(/(?:at|phòng|room)?\s*(R\.[A-Za-z0-9_-]+|[A-Z]{1,5}[-_]?[A-Z0-9]{2,6})/i);
         if (roomMatch && !roomMatch[1].startsWith('SE') && !roomMatch[1].startsWith('IA')) {
           room = roomMatch[1].toUpperCase();
+        }
+
+        // Tìm khung giờ riêng trong ô nếu có: (7:00-9:15), (13:00-15:15)
+        let startTime = '';
+        let endTime = '';
+        const timeMatch = cellText.match(/\(?(\d{1,2}:\d{2})\s*[-–]\s*(\d{1,2}:\d{2})\)?/);
+        if (timeMatch) {
+          startTime = timeMatch[1].padStart(5, '0');
+          endTime = timeMatch[2].padStart(5, '0');
         }
 
         // Tìm giảng viên: (HaiNM1), (SonNT5)...
@@ -216,21 +220,30 @@
           teacher = teacherMatch[1];
         }
 
-        // Tìm lớp/group: SE1701, IA1602...
+        // Tìm lớp/group: CE1805, SE1701...
         let group = '';
         const groupMatch = cellText.match(/\b([A-Z]{2,3}\d{4,5})\b/);
         if (groupMatch && groupMatch[1] !== subject) {
           group = groupMatch[1];
         }
 
+        let note = '';
+        if (cellText.includes('attended')) note += 'Đã tham gia (attended) • ';
+        if (cellText.includes('Not yet')) note += 'Sắp diễn ra • ';
+        if (cellText.includes('EduNext')) note += 'EduNext • ';
+        if (cellText.includes('Online')) note += 'Online • ';
+        if (cellText.includes('Meet URL')) note += 'Google Meet • ';
+
         scheduleItems.push({
           date: targetDate,
           slot: slotNum,
-          subject: subject || 'Lớp học FPT',
+          subject: subject,
           room: room,
-          teacher: teacher || 'FPT Lecturer',
+          teacher: teacher || 'Giảng viên FPT',
           group: group || '',
-          note: `Lịch học FAP FPT - Lớp: ${group || 'N/A'}`
+          startTime: startTime || undefined,
+          endTime: endTime || undefined,
+          note: note.trim().replace(/•$/, '') || `Lịch học FAP FPT - Lớp: ${group || 'N/A'}`
         });
       });
     });

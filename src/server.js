@@ -9,6 +9,7 @@ import path from 'path';
 import fs from 'fs';
 import { fileURLToPath } from 'url';
 import { SLOT_CONFIG, normalizeDate } from './slotConfig.js';
+import { parseFapSchedule } from './fapParser.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -93,10 +94,23 @@ export function buildICalendarFeed(studentInfo, items) {
     const timeInfo = SLOT_CONFIG[slotNumber] || SLOT_CONFIG[1];
     const dateClean = normalizeDate(item.date).replace(/-/g, '');
 
-    const startHours = String(timeInfo.start[0]).padStart(2, '0');
-    const startMinutes = String(timeInfo.start[1]).padStart(2, '0');
-    const endHours = String(timeInfo.end[0]).padStart(2, '0');
-    const endMinutes = String(timeInfo.end[1]).padStart(2, '0');
+    let startHours = String(timeInfo.start[0]).padStart(2, '0');
+    let startMinutes = String(timeInfo.start[1]).padStart(2, '0');
+    let endHours = String(timeInfo.end[0]).padStart(2, '0');
+    let endMinutes = String(timeInfo.end[1]).padStart(2, '0');
+
+    if (item.startTime && item.endTime) {
+      const sParts = item.startTime.split(':');
+      const eParts = item.endTime.split(':');
+      if (sParts.length === 2) {
+        startHours = sParts[0].padStart(2, '0');
+        startMinutes = sParts[1].padStart(2, '0');
+      }
+      if (eParts.length === 2) {
+        endHours = eParts[0].padStart(2, '0');
+        endMinutes = eParts[1].padStart(2, '0');
+      }
+    }
 
     const dtStart = `${dateClean}T${startHours}${startMinutes}00`;
     const dtEnd = `${dateClean}T${endHours}${endMinutes}00`;
@@ -138,77 +152,133 @@ export function buildICalendarFeed(studentInfo, items) {
 }
 
 /**
- * Tạo dữ liệu lịch mẫu trong 2 tuần tiếp theo để kiểm thử
+ * Tạo dữ liệu lịch thực tế của Quang Thành Đạt (FPT Cần Thơ)
  */
 function generateSampleSchedule(studentCode) {
-  const subjects = [
-    { code: 'SWP391', name: 'Software Project', room: 'AL-L502', teacher: 'SonNT5' },
-    { code: 'PRN212', name: 'Basic Cross-Platform', room: 'BE-304', teacher: 'HaiNM1' },
-    { code: 'SWE201c', name: 'Software Engineering', room: 'DE-201', teacher: 'TuanVM' },
-    { code: 'MLN122', name: 'Triết học Mác - Lênin', room: 'BETA-102', teacher: 'HuongLT' },
-    { code: 'LAB211', name: 'OOP Java Lab', room: 'AL-L401', teacher: 'KhanhKT' }
-  ];
-
-  const items = [];
-  const today = new Date();
-  // Bắt đầu từ thứ 2 tuần này
-  const day = today.getDay();
-  const diff = today.getDate() - (day === 0 ? 6 : day - 1);
-  const startMonday = new Date(today.setDate(diff));
-
-  // Tạo 14 ngày (2 tuần)
-  for (let d = 0; d < 14; d++) {
-    const curDate = new Date(startMonday);
-    curDate.setDate(startMonday.getDate() + d);
-    
-    // Bỏ qua Chủ nhật
-    if (curDate.getDay() === 0) continue;
-
-    const y = curDate.getFullYear();
-    const m = String(curDate.getMonth() + 1).padStart(2, '0');
-    const dayStr = String(curDate.getDate()).padStart(2, '0');
-    const dateIso = `${y}-${m}-${dayStr}`;
-
-    // Thứ 2, 4, 6: Slot 1 & 3
-    // Thứ 3, 5, 7: Slot 2 & 4
-    if (curDate.getDay() % 2 === 1) {
-      items.push({
-        date: dateIso,
-        slot: 1,
-        subject: subjects[0].code,
-        room: subjects[0].room,
-        teacher: subjects[0].teacher,
-        group: 'SE1701'
-      });
-      items.push({
-        date: dateIso,
-        slot: 3,
-        subject: subjects[1].code,
-        room: subjects[1].room,
-        teacher: subjects[1].teacher,
-        group: 'SE1701'
-      });
-    } else {
-      items.push({
-        date: dateIso,
-        slot: 2,
-        subject: subjects[2].code,
-        room: subjects[2].room,
-        teacher: subjects[2].teacher,
-        group: 'SE1701'
-      });
-      items.push({
-        date: dateIso,
-        slot: 4,
-        subject: subjects[3].code,
-        room: subjects[3].room,
-        teacher: subjects[3].teacher,
-        group: 'SE1701'
-      });
+  const code = (studentCode || 'CE180531').toUpperCase();
+  return [
+    {
+      date: '2026-09-14',
+      slot: 1,
+      subject: 'EXE101',
+      room: 'R.A702',
+      teacher: 'Giảng viên EXE101',
+      group: 'CE1805',
+      note: 'EduNext - Đã tham gia (attended)',
+      startTime: '07:00',
+      endTime: '09:15'
+    },
+    {
+      date: '2026-09-14',
+      slot: 3,
+      subject: 'ANR402',
+      room: 'R.A407',
+      teacher: 'Giảng viên ANR402',
+      group: 'CE1805',
+      note: 'Đã tham gia (attended)',
+      startTime: '13:00',
+      endTime: '15:15'
+    },
+    {
+      date: '2026-09-14',
+      slot: 4,
+      subject: 'SDP201',
+      room: 'R.A407',
+      teacher: 'Giảng viên SDP201',
+      group: 'CE1805',
+      note: 'Đã tham gia (attended)',
+      startTime: '15:30',
+      endTime: '17:45'
+    },
+    {
+      date: '2026-09-15',
+      slot: 3,
+      subject: 'ANR402',
+      room: 'R.A405',
+      teacher: 'Giảng viên ANR402',
+      group: 'CE1805',
+      note: 'Đã tham gia (attended)',
+      startTime: '13:00',
+      endTime: '15:15'
+    },
+    {
+      date: '2026-09-15',
+      slot: 4,
+      subject: 'VNC104',
+      room: 'R.A405',
+      teacher: 'Giảng viên VNC104',
+      group: 'CE1805',
+      note: 'EduNext - Đã tham gia (attended)',
+      startTime: '15:30',
+      endTime: '17:45'
+    },
+    {
+      date: '2026-09-16',
+      slot: 2,
+      subject: 'EXE101',
+      room: 'R.A708',
+      teacher: 'Giảng viên EXE101',
+      group: 'CE1805',
+      note: 'EduNext - Đã tham gia (attended)',
+      startTime: '09:30',
+      endTime: '11:45'
+    },
+    {
+      date: '2026-09-16',
+      slot: 3,
+      subject: 'SDP201',
+      room: 'R.A301',
+      teacher: 'Giảng viên SDP201',
+      group: 'CE1805',
+      note: 'Đã tham gia (attended)',
+      startTime: '13:00',
+      endTime: '15:15'
+    },
+    {
+      date: '2026-09-16',
+      slot: 4,
+      subject: 'ANR402',
+      room: 'R.A407',
+      teacher: 'Giảng viên ANR402',
+      group: 'CE1805',
+      note: 'Sắp diễn ra (Not yet)',
+      startTime: '15:30',
+      endTime: '17:45'
+    },
+    {
+      date: '2026-09-17',
+      slot: 3,
+      subject: 'VNC104',
+      room: 'R.A405',
+      teacher: 'Giảng viên VNC104',
+      group: 'CE1805',
+      note: 'Meet URL - EduNext - Online (Not yet)',
+      startTime: '13:00',
+      endTime: '15:15'
+    },
+    {
+      date: '2026-09-17',
+      slot: 4,
+      subject: 'ANR402',
+      room: 'R.A405',
+      teacher: 'Giảng viên ANR402',
+      group: 'CE1805',
+      note: 'Meet URL (Not yet)',
+      startTime: '15:30',
+      endTime: '17:45'
+    },
+    {
+      date: '2026-09-18',
+      slot: 2,
+      subject: 'VNC104',
+      room: 'R.ON01',
+      teacher: 'Giảng viên VNC104',
+      group: 'CE1805',
+      note: 'Meet URL - EduNext - Online (Not yet)',
+      startTime: '09:30',
+      endTime: '11:45'
     }
-  }
-
-  return items;
+  ];
 }
 
 // ====================== CÁC API ENDPOINTS ======================
@@ -303,52 +373,16 @@ app.post('/api/extract-html', (req, res) => {
       return res.status(400).json({ success: false, message: 'Nội dung HTML trống!' });
     }
 
-    const items = [];
-    const dateMatches = Array.from(html.matchAll(/(\d{1,2})[\/\-](\d{1,2})(?:[\/\-](\d{4}))?/g));
-    const currentYear = new Date().getFullYear();
-    const dates = [];
-
-    dateMatches.forEach(m => {
-      const d = m[1].padStart(2, '0');
-      const mo = m[2].padStart(2, '0');
-      const y = m[3] || currentYear;
-      const iso = `${y}-${mo}-${d}`;
-      if (!dates.includes(iso)) dates.push(iso);
-    });
-
-    const subjectRegex = /\b([A-Z]{3}\d{3}[a-z]?)\b/g;
-    const subjects = Array.from(new Set(Array.from(html.matchAll(subjectRegex)).map(m => m[1])));
-
-    const rawId = (studentId || 'STUDENT').toString().trim().toUpperCase();
-    const cleanId = rawId.replace(/[^A-Z0-9_-]/g, '') || `STU${Date.now()}`;
+    const parsed = parseFapSchedule(html, studentId || 'CE180531');
+    const cleanId = (parsed.studentId || studentId || 'CE180531').toString().trim().toUpperCase().replace(/[^A-Z0-9_-]/g, '') || 'CE180531';
     const userId = cleanId.toLowerCase();
-
-    if (subjects.length > 0 && dates.length > 0) {
-      dates.slice(0, 7).forEach((d, dIdx) => {
-        const sub = subjects[dIdx % subjects.length];
-        const slot = (dIdx % 4) + 1;
-        items.push({
-          date: d,
-          slot: slot,
-          subject: sub,
-          room: 'AL-L502',
-          teacher: 'SonNT5',
-          group: 'SE1701'
-        });
-      });
-    }
-
-    if (items.length === 0) {
-      const fallbackItems = generateSampleSchedule(cleanId);
-      items.push(...fallbackItems);
-    }
 
     scheduleDatabase[userId] = {
       userId,
       studentId: cleanId,
-      studentName: cleanId,
+      studentName: parsed.studentName || 'Quang Thành Đạt',
       updatedAt: new Date().toISOString(),
-      schedule: items
+      schedule: parsed.items
     };
     persistDatabase();
 
@@ -356,9 +390,11 @@ app.post('/api/extract-html', (req, res) => {
     const webcalBase = `webcal://${host}`;
     return res.json({
       success: true,
-      message: `Đã bóc tách thành công ${items.length} ca học!`,
+      message: `Đã bóc tách thành công ${parsed.items.length} ca học thật của sinh viên ${parsed.studentName} (${cleanId})!`,
       userId,
-      count: items.length,
+      studentId: cleanId,
+      studentName: parsed.studentName,
+      count: parsed.items.length,
       webcalUrl: `${webcalBase}/api/feed/${userId}.ics`
     });
   } catch (err) {
